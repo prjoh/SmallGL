@@ -1,3 +1,4 @@
+import Utils from "./Utils.js";
 import Camera from "./Camera.js";
 import ResourceLoader from "./ResourceLoader.js";
 import ShaderProgram from "./ShaderProgram.js";
@@ -10,20 +11,18 @@ const ATTR_LOC_NORMAL = 1;
 const ATTR_LOC_UV = 2;
 
 /* Camera settings */
-const FOV = 75;
+const FOV = Utils.toRadians(75);
 const NEAR = 0.1;
 const FAR = 1000;
-const EYE = [0.0, 0.0, 25.0];
+const EYE = [0.0, 0.0, 5.0];
 const CENTER = [0.0, 0.0, 0.0];
 const UP = [0.0, 1.0, 0.0];
 
-var scene = [];
-
 /* Object data */
 var positions = [
-  0, 0, 0,
-  0, 0.5, 0,
-  0.7, 0, 0,
+  0, 0, 2,
+  0, 0.5, 2,
+  0.5, 0, 2,
 ];
 
 var objectColors = [
@@ -34,12 +33,21 @@ var objectColors = [
 class Program {
   constructor(gl) {
     this.gl = gl;
-    this.camera = new Camera(FOV, this.gl.canvas.clientWidth / this.gl.canvas.clientHeight,
-                             NEAR, FAR);
+    this.camera = new Camera(
+      FOV,
+      this.gl.canvas.clientWidth / this.gl.canvas.clientHeight,
+      NEAR,
+      FAR,
+      EYE,
+      CENTER,
+      UP);
+    this.scene = [];
     this.run = false;
 
-    this.camera.setPosition(EYE); // TEST THIS
+    // this.camera.setPosition(EYE[0], EYE[1], EYE[2]); // TEST THIS
     console.log(this.camera.transform.getPosition());
+    console.log(this.camera.getViewMatrix());
+    console.log(this.camera.projectionMat);
   }
 
   init(runProgramCallback) {
@@ -97,8 +105,10 @@ class Program {
       shaderPrograms["basic"],
       this.gl.TRIANGLES);
 
-    scene.push(dragonMesh);
-    scene.push(triangle);
+    dragonMesh.transform.rotate(Utils.toRadians(-90), [1,0,0]);
+
+    this.scene.push(dragonMesh);
+    this.scene.push(triangle);
 
     // Run render loop
     this.run = true;
@@ -119,17 +129,29 @@ class Program {
 
   render() {
     this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
-    //this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
-    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+    this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+    // this.gl.clear(this.gl.COLOR_BUFFER_BIT);
 
-    for (var i = 0; i < scene.length; i++) {
+    for (var i = 0; i < this.scene.length; i++) {
       // DELETE
-      var gl = scene[i].geometry.gl;
-      scene[i].shaderProgram.set();
-      var colorLocation = gl.getUniformLocation(scene[i].shaderProgram.gl_program, "u_color");
+      var gl = this.scene[i].geometry.gl;
+      var object = this.scene[i];
+
+      object.shaderProgram.set();
+      var colorLocation = gl.getUniformLocation(object.shaderProgram.gl_program, "u_color");
       gl.uniform4f(colorLocation, objectColors[i][0], objectColors[i][1], objectColors[i][2], objectColors[i][3]);
 
-      scene[i].draw();
+      object.transform.rotateZ(Utils.toRadians(-0.5));
+      // Why suzanne spins around Y axis??
+
+      var pLocation = gl.getUniformLocation(object.shaderProgram.gl_program, "u_pMat");
+      var vLocation = gl.getUniformLocation(object.shaderProgram.gl_program, "u_vMat");
+      var mLocation = gl.getUniformLocation(object.shaderProgram.gl_program, "u_mMat");
+      gl.uniformMatrix4fv(pLocation, false, this.camera.projectionMat);
+      gl.uniformMatrix4fv(vLocation, false, this.camera.getViewMatrix());
+      gl.uniformMatrix4fv(mLocation, false, object.transform.modelMat);
+
+      object.draw();
     };
   }
 }

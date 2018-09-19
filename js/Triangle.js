@@ -6,7 +6,7 @@ class Triangle extends Geometry {
     super(gl);
     this.count = 3;
     this.indexed = false;
-    
+
     this.createVAO(vertices);
   }
 

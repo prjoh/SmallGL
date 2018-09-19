@@ -1,8 +1,11 @@
+import Transform from "./Transform.js"
+
 class Mesh {
   constructor(geometry, shaderProgram, drawMode) {
     this.geometry = geometry;
     this.shaderProgram = shaderProgram;
     this.drawMode = drawMode;
+    this.transform = new Transform();  // Model matrix
   }
 
   destroyMesh() {

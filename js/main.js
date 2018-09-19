@@ -13,7 +13,7 @@ function initWebGL() {
 
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
   //gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-  gl.clear(gl.COLOR_BUFFER_BIT);
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   //gl.enable(gl.DEPTH_TEST);
   //gl.enable(gl.CULL_FACE); //THIS BREAKS?
   //gl.frontFace(gl.CCW);

@@ -34,8 +34,23 @@ class Transform {
     mat4.mul(this.modelMat, this.modelMat, this.translation);
   }
 
-  rotate (radian, axis) {
-    mat4.fromRotation(this.rotation, radian, axis);
+  rotate (radians, axis) {
+    mat4.fromRotation(this.rotation, radians, axis);
+    mat4.mul(this.modelMat, this.modelMat, this.rotation);
+  }
+
+  rotateX (radians) {
+    mat4.fromXRotation(this.rotation, radians);
+    mat4.mul(this.modelMat, this.modelMat, this.rotation);
+  }
+
+  rotateY (radians) {
+    mat4.fromYRotation(this.rotation, radians);
+    mat4.mul(this.modelMat, this.modelMat, this.rotation);
+  }
+
+  rotateZ (radians) {
+    mat4.fromZRotation(this.rotation, radians);
     mat4.mul(this.modelMat, this.modelMat, this.rotation);
   }
 
