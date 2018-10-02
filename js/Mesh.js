@@ -5,16 +5,15 @@ class Mesh {
     this.geometry = geometry;
     this.shaderProgram = shaderProgram;
     this.drawMode = drawMode;
-    this.transform = new Transform();  // Model matrix
   }
 
   destroyMesh() {
-    // unbind gl resources
+    // Unbind gl resources
     this.gl.bindTexture(this.gl.TEXTURE_2D, null);
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
     this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, null);
     
-    // delete gl resources
+    // Delete gl resources
     // this.gl.deleteTexture(that.gl_texture);
     // this.gl.deleteBuffer(that.gl_vertBuffer);
     // this.gl.deleteBuffer(that.gl_normBuffer);
@@ -31,11 +30,14 @@ class Mesh {
     this.shaderProgram.set();
 
     gl.bindVertexArray(vao);
+
     if (this.geometry.indexed) {
       gl.drawElements(this.drawMode, count, gl.UNSIGNED_SHORT, 0);
     } else {
       gl.drawArrays(this.drawMode, 0, count);
     }
+
+    this.shaderProgram.unset();
   }
 }
 

@@ -2,7 +2,7 @@ import Utils from "./Utils.js";
 import Camera from "./Camera.js";
 import ResourceLoader from "./ResourceLoader.js";
 import ShaderProgram from "./ShaderProgram.js";
-import Mesh from "./Mesh.js";
+import SceneObject from "./SceneObject.js";
 import {ExternalGeometry, Triangle} from "./Geometries.js";
 
 /* Attribute locations */
@@ -11,18 +11,18 @@ const ATTR_LOC_NORMAL = 1;
 const ATTR_LOC_UV = 2;
 
 /* Camera settings */
-const FOV = Utils.toRadians(75);
+const FOV = 75;
 const NEAR = 0.1;
 const FAR = 1000;
-const EYE = [0.0, 0.0, 5.0];
+const EYE = [0.0, 0.0, 15.0];
 const CENTER = [0.0, 0.0, 0.0];
 const UP = [0.0, 1.0, 0.0];
 
 /* Object data */
 var positions = [
-  0, 0, 2,
-  0, 0.5, 2,
-  0.5, 0, 2,
+  -1, -1, 0,
+  -1, 1, 0,
+  1, -1, 0,
 ];
 
 var objectColors = [
@@ -30,11 +30,14 @@ var objectColors = [
   [Math.random(), Math.random(), Math.random(), 1.0]
 ];
 
+var angle = 0;
+
+
 class Program {
   constructor(gl) {
     this.gl = gl;
     this.camera = new Camera(
-      FOV,
+      Utils.toRadians(FOV),
       this.gl.canvas.clientWidth / this.gl.canvas.clientHeight,
       NEAR,
       FAR,
@@ -44,8 +47,7 @@ class Program {
     this.scene = [];
     this.run = false;
 
-    // this.camera.setPosition(EYE[0], EYE[1], EYE[2]); // TEST THIS
-    console.log(this.camera.transform.getPosition());
+    // DEBUG
     console.log(this.camera.getViewMatrix());
     console.log(this.camera.projectionMat);
   }
@@ -60,7 +62,7 @@ class Program {
         {type: "model", name: "buddha"},
         {type: "model", name: "suzanne"},
         // Load texture files
-        {type: "texture", name: "texture"},
+        {type: "texture", name: "suzanne"},
       ]);
 
     // Wait for all resource queries to finish
@@ -96,19 +98,31 @@ class Program {
       shaderPrograms[key] = shaderProgram;
     });
 
-    var dragonMesh = new Mesh(
+    var dragonMesh = new SceneObject(
       new ExternalGeometry(this.gl, modelObjects["suzanne"]), 
       shaderPrograms["basic"],
       this.gl.TRIANGLES);
-    var triangle = new Mesh(
+    var triangle = new SceneObject(
+      new Triangle(this.gl, positions),
+      shaderPrograms["basic"],
+      this.gl.TRIANGLES);
+    var triangle2 = new SceneObject(
       new Triangle(this.gl, positions),
       shaderPrograms["basic"],
       this.gl.TRIANGLES);
 
-    dragonMesh.transform.rotate(Utils.toRadians(-90), [1,0,0]);
+    // Scale, Rotate & Translate
+    dragonMesh.transform.rotateX(Utils.toRadians(-90));
+    dragonMesh.transform.translate([-6, 4, 6]);
+    triangle.transform.translate([0, 3, -2]);
+    triangle2.transform.translate([0, -3, 2]);
 
-    this.scene.push(dragonMesh);
+    //triangle2.setParent(triangle);
+
+    // Add objects to scene
+    //this.scene.push(dragonMesh);
     this.scene.push(triangle);
+    this.scene.push(triangle2);
 
     // Run render loop
     this.run = true;
@@ -124,35 +138,35 @@ class Program {
     var aspect = canvas.clientWidth / canvas.clientHeight;
 
     // Perform transforms
-    // ...
+    for (var i = 0; i < this.scene.length; i++) {
+      var object = this.scene[i];
+
+      angle = angle + Utils.toRadians(-0.5);
+
+      object.transform.rotateZ(angle);
+      object.transform.updateModelMatrix();
+    }
+
+    //this.scene[0].updateWorldMatrix();
   }
 
   render() {
     this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
     this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
-    // this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+
+    var viewProjectionMat = this.camera.getViewProjectionMatrix();
 
     for (var i = 0; i < this.scene.length; i++) {
-      // DELETE
-      var gl = this.scene[i].geometry.gl;
       var object = this.scene[i];
+      var mesh = object.mesh;
+      var worldMatrix = this.scene[i].worldMat;
 
-      object.shaderProgram.set();
-      var colorLocation = gl.getUniformLocation(object.shaderProgram.gl_program, "u_color");
-      gl.uniform4f(colorLocation, objectColors[i][0], objectColors[i][1], objectColors[i][2], objectColors[i][3]);
-
-      object.transform.rotateZ(Utils.toRadians(-0.5));
-      // Why suzanne spins around Y axis??
-
-      var pLocation = gl.getUniformLocation(object.shaderProgram.gl_program, "u_pMat");
-      var vLocation = gl.getUniformLocation(object.shaderProgram.gl_program, "u_vMat");
-      var mLocation = gl.getUniformLocation(object.shaderProgram.gl_program, "u_mMat");
-      gl.uniformMatrix4fv(pLocation, false, this.camera.projectionMat);
-      gl.uniformMatrix4fv(vLocation, false, this.camera.getViewMatrix());
-      gl.uniformMatrix4fv(mLocation, false, object.transform.modelMat);
+      mesh.shaderProgram.setUniform4f("u_color", objectColors[i]);
+      mesh.shaderProgram.setUniformMat4fv("u_viewProjMat", viewProjectionMat);
+      mesh.shaderProgram.setUniformMat4fv("u_modelMat", object.transform.modelMat /*worldMatrix*/);
 
       object.draw();
-    };
+    }
   }
 }
 

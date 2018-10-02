@@ -61,6 +61,29 @@ class ShaderProgram {
   set() {
     this.gl.useProgram(this.gl_program);
   }
+
+  unset() {
+    this.gl.useProgram(null);
+  }
+
+  setUniform4f(name, data) {
+    this.set();
+    this.gl.uniform4f(
+      this.gl.getUniformLocation(this.gl_program, name),
+      data[0], data[1], data[2], data[3]
+    );
+    this.unset();
+  }
+
+  setUniformMat4fv(name, data) {
+    this.set();
+    this.gl.uniformMatrix4fv(
+      this.gl.getUniformLocation(this.gl_program, name),
+      false,
+      data
+    );
+    this.unset();    
+  }
 }
 
 export default ShaderProgram;
