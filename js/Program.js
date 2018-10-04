@@ -21,9 +21,9 @@ const UP = [0.0, 1.0, 0.0];
 
 /* Object data */
 var positions = [
-  -1, -1, 0,
-  -1, 1, 0,
-  1, -1, 0,
+  0, 0, 0,
+  1, 0, 0,
+  0, 1, 0,
 ];
 
 var cubeVertices = [
@@ -131,6 +131,7 @@ var cubeUV = [
 var objectColors = [
   [Math.random(), Math.random(), Math.random(), 1.0],
   [Math.random(), Math.random(), Math.random(), 1.0],
+  [Math.random(), Math.random(), Math.random(), 1.0],
   [Math.random(), Math.random(), Math.random(), 1.0]
 ];
 
@@ -226,14 +227,14 @@ class Program {
       ),
       gl.TRIANGLES
     );
-    // var triangle2 = new SceneObject(
-    //   "triangle_02",
-    //   new Triangle(
-    //     shaderPrograms["basic"],
-    //     positions
-    //   ),
-    //   gl.TRIANGLES
-    // );
+    var triangle2 = new SceneObject(
+      "triangle_02",
+      new Triangle(
+        shaderPrograms["basic"],
+        positions
+      ),
+      gl.TRIANGLES
+    );
     var cube = new SceneObject(
       "cube",
       new Cube(
@@ -246,12 +247,12 @@ class Program {
       gl.TRIANGLES
     );
 
-    //triangle2.setParent(triangle);
+    triangle2.setParent(triangle);
 
     // Add objects to scene
-    this.scene.push(suzanne);
     this.scene.push(triangle);
-    //this.scene.push(triangle2);
+    this.scene.push(triangle2);
+    this.scene.push(suzanne);
     this.scene.push(cube);
 
     // Run render loop
@@ -280,15 +281,21 @@ class Program {
       }
       if (object.identifier == "cube") {
         object.transform.rotate([-120, -angle, 0]);
-        object.transform.translate([5, 5, -5]);        
+        object.transform.translate([5, 5, -5]);
       }
       if (object.identifier == "triangle_01") {
-        object.transform.rotate([-120, angle, 0]);
-        object.transform.translate([1, 1, 5]);        
+        object.transform.rotate([0, 0, angle]);
+        object.transform.translate([-3, 3, 0]);
+      }
+      if (object.identifier == "triangle_02") {
+        object.transform.rotate([0, 0, angle]);
+        object.transform.translate([-2, 3, 0]);
       }
     }
 
-    //this.scene[0].updateWorldMatrix();
+    this.scene[0].updateWorldMatrix();
+    this.scene[2].updateWorldMatrix();
+    this.scene[3].updateWorldMatrix();
   }
 
   render() {
@@ -300,12 +307,12 @@ class Program {
     for (var i = 0; i < this.scene.length; i++) {
       var object = this.scene[i];
       var modelMat = object.transform.getModelMatrix();
-      //var worldMatrix = object.worldMat;
+      var worldMatrix = object.worldMat;
       var shaderProgram = object.geometry.shaderProgram;
 
       shaderProgram.setUniform4f("u_color", objectColors[i]);
       shaderProgram.setUniformMat4fv("u_viewProjMat", viewProjectionMat);
-      shaderProgram.setUniformMat4fv("u_modelMat", modelMat /*worldMatrix*/);
+      shaderProgram.setUniformMat4fv("u_modelMat", /*modelMat*/ worldMatrix);
 
       object.draw();
     }

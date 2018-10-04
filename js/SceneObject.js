@@ -67,9 +67,9 @@ class SceneObject {
 
   updateWorldMatrix(parentWorldMat) {
     if (parentWorldMat) {
-      mat4.mul(this.worldMat, parentWorldMat, this.transform.modelMat);
+      mat4.mul(this.worldMat, parentWorldMat, this.transform.getModelMatrix());
     } else {
-      mat4.copy(this.worldMat, this.transform.modelMat);
+      mat4.copy(this.worldMat, this.transform.getModelMatrix());
     }
 
     var worldMat = this.worldMat;
