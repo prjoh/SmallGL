@@ -26,10 +26,12 @@ async function load(objects) {
     } else if (objectType == "texture") {
       var objectName = "t_" + objects[i].name;
       var response = await fetch("./res/textures/" + objects[i].name + ".png");
-      var textureSrc = await response.blob();
+      var blob = await response.blob();
+      //var imageUrl = URL.createObjectURL(blob);
+      var imageUrl = "./res/textures/" + objects[i].name + ".png";
 
       data[objectName] = {
-        blob: textureSrc
+        imgUrl: imageUrl
       };
     } else {
       throw Error("Invalid object type passed to ResourceLoader:" + objects[i]);
@@ -38,4 +40,39 @@ async function load(objects) {
   return data;
 }
 
-export default { load };
+function loadImages(imageUrls, cbOwner, callback, callbackArgs) {
+  var loaded = 0; // Counter of verified images
+  var result = {
+    success: {},
+    error: {}
+  };
+
+  var verifier = function (){
+    loaded++;
+
+    if (loaded == Object.keys(imageUrls).length) {
+      console.log(result["success"]);
+      callback.call(cbOwner, callbackArgs[0], callbackArgs[1], result["success"], callbackArgs[2]);
+    }
+  };
+
+  Object.keys(imageUrls).forEach(key => {
+    var imgSource = imageUrls[key].imgUrl;
+    var img = new Image();
+    var object = {};
+
+      img.addEventListener("load", function(){
+        result["success"][key] = img;
+        verifier();
+      }, false); 
+
+      img.addEventListener("error", function(){
+        result["error"][key] = imgSource;
+        verifier();
+      }, false); 
+
+      img.src = imgSource;    
+  });
+}
+
+export default { load, loadImages };

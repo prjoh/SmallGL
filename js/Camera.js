@@ -2,6 +2,9 @@ import Transform from "./Transform.js";
 
 class Camera {
   constructor(fov, aspect, near, far, position, viewAt, up) {
+    this.fov = fov;
+    this.near = near;
+    this.far = far;
     this.position = position;
     this.viewAt = viewAt;
     this.up = up;
@@ -25,8 +28,8 @@ class Camera {
     return viewProjection;
   }
 
-  updateCamera() {
-
+  update(aspect) {
+    mat4.perspective(this.projectionMat, this.fov, aspect, this.near, this.far);
   }
 }
 

@@ -1,13 +1,53 @@
-import Mesh from "./Mesh.js";
+import {gl} from "./main.js";
 import Transform from "./Transform.js"
 
 class SceneObject {
-  constructor(geometry, shaderProgram, drawMode) {
-    this.mesh = new Mesh(geometry, shaderProgram, drawMode);
+  constructor(id, geometry, drawMode) {
+    this.identifier = id;
+    this.geometry = geometry;
+    this.drawMode = drawMode;
     this.parentObject = null;
     this.children = [];
     this.transform = new Transform(); // Model Matrix
     this.worldMat = mat4.create();
+  }
+
+  destroy() {
+    // Unbind gl resources
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+    
+    // Delete gl resources
+    // gl.deleteTexture(that.gl_texture);
+    // gl.deleteBuffer(that.gl_vertBuffer);
+    // gl.deleteBuffer(that.gl_normBuffer);
+    // gl.deleteBuffer(that.gl_uvBuffer);
+    // gl.deleteBuffer(that.gl_ibo);
+    // gl.deleteVertexArray(that.gl_vao);
+  }
+
+  draw() {
+    var shaderProgram = this.geometry.shaderProgram;
+    var vao = this.geometry.gl_vao;
+    var texture = this.geometry.gl_texture;
+    var count = this.geometry.count;
+
+    shaderProgram.set();
+
+    gl.bindVertexArray(vao);
+
+    if (texture) {
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+    }
+
+    if (this.geometry.indexed) {
+      gl.drawElements(this.drawMode, count, gl.UNSIGNED_SHORT, 0);
+    } else {
+      gl.drawArrays(this.drawMode, 0, count);
+    }
+
+    shaderProgram.unset();
   }
 
   setParent(parent) {
@@ -37,10 +77,6 @@ class SceneObject {
     this.children.forEach(function(child) {
       child.updateWorldMatrix(worldMat);
     });
-  }
-
-  draw() {
-    this.mesh.draw();
   }
 }
 

@@ -1,48 +1,48 @@
 import * as glMatrix from "./gl-matrix-min.js";
+import Utils from "./Utils.js";
 
 class Transform {
   constructor() {
     this.translation = mat4.create();
     this.rotation = mat4.create();
     this.scaling = mat4.create();
-    this.modelMat = mat4.create();
   }
 
   translate(translationVector) {
-    mat4.identity(this.translation);
     mat4.fromTranslation(this.translation, translationVector);
   }
 
-  rotate(radians, axis) {
-    mat4.identity(this.rotation);
-    mat4.fromRotation(this.rotation, radians, axis);
-  }
+  rotate(rotationVector) {
+    var radiansX = Utils.toRadians(rotationVector[0]);
+    var radiansY = Utils.toRadians(rotationVector[1]);
+    var radiansZ = Utils.toRadians(rotationVector[2]);
 
-  rotateX(radians) {
-    mat4.identity(this.rotation);
-    mat4.fromXRotation(this.rotation, radians);
-  }
+    var xRotation = new Float32Array(16);
+    var yRotation = new Float32Array(16);
+    var zRotation = new Float32Array(16);
 
-  rotateY(radians) {
-    mat4.identity(this.rotation);
-    mat4.fromYRotation(this.rotation, radians);
-  }
+    mat4.fromXRotation(xRotation, radiansX);
+    mat4.fromYRotation(yRotation, radiansY);
+    mat4.fromZRotation(zRotation, radiansZ);
 
-  rotateZ(radians) {
-    mat4.identity(this.rotation);
-    mat4.fromZRotation(this.rotation, radians);
+    mat4.mul(yRotation, yRotation, xRotation);
+    mat4.mul(zRotation, zRotation, yRotation);
+
+    this.rotation = zRotation;
   }
 
   scale(scalingVector) {
-    mat4.identity(this.scaling);
     mat4.fromScaling(this.scaling, scalingVector);
   }
 
-  updateModelMatrix() {
-    mat4.identity(this.modelMat);
-    mat4.mul(this.modelMat, this.modelMat, this.translation);
-    mat4.mul(this.modelMat, this.modelMat, this.rotation);
-    mat4.mul(this.modelMat, this.modelMat, this.scaling);
+  getModelMatrix() {
+    var modelMat = mat4.create();
+
+    mat4.mul(modelMat, modelMat, this.translation);
+    mat4.mul(modelMat, modelMat, this.rotation);
+    mat4.mul(modelMat, modelMat, this.scaling);
+
+    return modelMat;
   }
 
   getNormalMatrix (viewMat) {

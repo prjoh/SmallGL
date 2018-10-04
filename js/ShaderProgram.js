@@ -1,10 +1,11 @@
+import {gl} from "./main.js";
+
 class ShaderProgram {
-  constructor(gl, shaderName, vshSrc, fshSrc) {
-    this.gl = gl;
-    this.gl_program = this.createShaderProgram(this.gl, shaderName, vshSrc, fshSrc);
+  constructor(shaderName, vshSrc, fshSrc) {
+    this.gl_program = this.createShaderProgram(shaderName, vshSrc, fshSrc);
   }
 
-  createShaderProgram(gl, shaderName, vshSrc, fshSrc) {
+  createShaderProgram(/*gl, */shaderName, vshSrc, fshSrc) {
     var shaderProgram = null;
 
     var gl_vsh = gl.createShader(gl.VERTEX_SHADER);
@@ -59,17 +60,17 @@ class ShaderProgram {
   }
 
   set() {
-    this.gl.useProgram(this.gl_program);
+    gl.useProgram(this.gl_program);
   }
 
   unset() {
-    this.gl.useProgram(null);
+    gl.useProgram(null);
   }
 
   setUniform4f(name, data) {
     this.set();
-    this.gl.uniform4f(
-      this.gl.getUniformLocation(this.gl_program, name),
+    gl.uniform4f(
+      gl.getUniformLocation(this.gl_program, name),
       data[0], data[1], data[2], data[3]
     );
     this.unset();
@@ -77,12 +78,21 @@ class ShaderProgram {
 
   setUniformMat4fv(name, data) {
     this.set();
-    this.gl.uniformMatrix4fv(
-      this.gl.getUniformLocation(this.gl_program, name),
+    gl.uniformMatrix4fv(
+      gl.getUniformLocation(this.gl_program, name),
       false,
       data
     );
     this.unset();    
+  }
+
+  setUniform1i(name, textureUnit) {
+    this.set();
+    gl.uniform1i(
+      gl.getUniformLocation(this.gl_program, name),
+      textureUnit
+    );
+    this.unset();
   }
 }
 

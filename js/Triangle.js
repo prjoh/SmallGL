@@ -1,9 +1,10 @@
+import {gl} from "./main.js";
 import Geometry from "./Geometry.js";
-import {ATTR_LOC_POSITION, ATTR_LOC_NORMAL, ATTR_LOC_UV} from "./Program.js"
+import {ATTR_POSITION_NAME, ATTR_NORMAL_NAME, ATTR_UV_NAME} from "./Program.js"
 
 class Triangle extends Geometry {
-  constructor(gl, vertices) {
-    super(gl);
+  constructor(gl_program, vertices) {
+    super(gl_program);
     this.count = 3;
     this.indexed = false;
 
@@ -11,63 +12,57 @@ class Triangle extends Geometry {
   }
 
   createVAO(vertices) {
-    // var vertices = object.json.meshes[0].vertices;
-    // var normals = object.json.meshes[0].normals;
-    // var indices = [].concat.apply([], object.json.meshes[0].faces);
-    var vBuffer = this.gl.createBuffer();
-
-    this.gl_vao =  this.gl.createVertexArray();
+    this.gl_vao =  gl.createVertexArray();
 
     // Buffer vertices
     if (vertices !== undefined && vertices != null) {
-      this.gl.bindVertexArray(this.gl_vao);
-      this.gl.bindBuffer(this.gl.ARRAY_BUFFER, vBuffer);
-      this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(vertices), this.gl.STATIC_DRAW);
-      this.gl.enableVertexAttribArray(ATTR_LOC_POSITION);
-      this.gl.vertexAttribPointer(
-        ATTR_LOC_POSITION, // Attribute location
-        3,                 // Number of elements per attribute
-        this.gl.FLOAT,     // Type of elements
-        this.gl.FALSE,     // Normalized data
-        0,                 // Size of one vertex
-        0                  // Offset from the beginning of one vertex to attribute
-      );
-      this.gl.bindVertexArray(null);
-      this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
+      var attribLoc = gl.getAttribLocation(this.shaderProgram.gl_program, ATTR_POSITION_NAME);
+      
+      if (attribLoc != -1) {
+        this.bufferAttrib(
+          attribLoc,
+          gl.ARRAY_BUFFER,
+          vertices,
+          gl.STATIC_DRAW,
+          3,
+          gl.FLOAT,
+          false
+        );
+      }
     } else {
       throw Error("Position data could not be buffered!");
     }
 
-    // var nBuffer = this.gl.createBuffer();
+    // var nBuffer = gl.createBuffer();
 
     // // Buffer normals
     // if (normals !== undefined && normals != null) {
-    //   this.gl.bindVertexArray(this.gl_vao);
-    //   this.gl.bindBuffer(this.gl.ARRAY_BUFFER, nBuffer);
-    //   this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(normals), this.gl.STATIC_DRAW);
-    //   this.gl.enableVertexAttribArray(ATTR_LOC_NORMAL);
-    //   this.gl.vertexAttribPointer(
+    //   gl.bindVertexArray(this.gl_vao);
+    //   gl.bindBuffer(gl.ARRAY_BUFFER, nBuffer);
+    //   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.STATIC_DRAW);
+    //   gl.enableVertexAttribArray(ATTR_LOC_NORMAL);
+    //   gl.vertexAttribPointer(
     //     ATTR_LOC_NORMAL, // Attribute location
     //     3,                 // Number of elements per attribute
-    //     this.gl.FLOAT,     // Type of elements
-    //     this.gl.FALSE,     // Normalized data
+    //     gl.FLOAT,     // Type of elements
+    //     gl.FALSE,     // Normalized data
     //     0,                 // Size of one vertex
     //     0                  // Offset from the beginning of one vertex to attribute
     //   );
-    //   this.gl.bindVertexArray(null);
-    //   this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
+    //   gl.bindVertexArray(null);
+    //   gl.bindBuffer(gl.ARRAY_BUFFER, null);
     // } else {
     //   throw Error("Normals data could not be buffered!");
     // }
 
-    // var iBuffer = this.gl.createBuffer();
+    // var iBuffer = gl.createBuffer();
 
     // if (indices !== undefined && indices != null) {
-    //   this.gl.bindVertexArray(this.gl_vao);
-    //   this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, iBuffer);
-    //   this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), this.gl.STATIC_DRAW);
-    //   this.gl.bindVertexArray(null);
-    //   this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, null);
+    //   gl.bindVertexArray(this.gl_vao);
+    //   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, iBuffer);
+    //   gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
+    //   gl.bindVertexArray(null);
+    //   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 
     //   this.count = indices.length;
     // } else {

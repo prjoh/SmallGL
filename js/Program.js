@@ -1,14 +1,15 @@
+import {gl} from "./main.js";
 import Utils from "./Utils.js";
 import Camera from "./Camera.js";
 import ResourceLoader from "./ResourceLoader.js";
 import ShaderProgram from "./ShaderProgram.js";
 import SceneObject from "./SceneObject.js";
-import {ExternalGeometry, Triangle} from "./Geometries.js";
+import {ExternalGeometry, Triangle, Cube} from "./Geometries.js";
 
-/* Attribute locations */
-const ATTR_LOC_POSITION = 0;
-const ATTR_LOC_NORMAL = 1;
-const ATTR_LOC_UV = 2;
+/* Attribute names in shader */
+const ATTR_POSITION_NAME = "a_position";
+const ATTR_NORMAL_NAME = "a_normal";
+const ATTR_UV_NAME = "a_texCoord";
 
 /* Camera settings */
 const FOV = 75;
@@ -25,7 +26,110 @@ var positions = [
   1, -1, 0,
 ];
 
+var cubeVertices = [
+  // Top
+  -1.0, 1.0, -1.0,
+  -1.0, 1.0, 1.0,
+  1.0, 1.0, 1.0,
+  1.0, 1.0, -1.0,
+
+  // Left
+  -1.0, 1.0, 1.0,
+  -1.0, -1.0, 1.0,
+  -1.0, -1.0, -1.0,
+  -1.0, 1.0, -1.0,
+
+  // Right
+  1.0, 1.0, 1.0,
+  1.0, -1.0, 1.0,
+  1.0, -1.0, -1.0,
+  1.0, 1.0, -1.0,
+
+  // Front
+  1.0, 1.0, 1.0,
+  1.0, -1.0, 1.0,
+  -1.0, -1.0, 1.0,
+  -1.0, 1.0, 1.0,
+
+  // Back
+  1.0, 1.0, -1.0,
+  1.0, -1.0, -1.0,
+  -1.0, -1.0, -1.0,
+  -1.0, 1.0, -1.0,
+
+  // Bottom
+  -1.0, -1.0, -1.0,
+  -1.0, -1.0, 1.0,
+  1.0, -1.0, 1.0,
+  1.0, -1.0, -1.0
+];
+
+var cubeIndices = [
+  // Top
+  0, 1, 2,
+  0, 2, 3,
+
+  // Left
+  5, 4, 6,
+  6, 4, 7,
+
+  // Right
+  8, 9, 10,
+  8, 10, 11,
+
+  // Front
+  13, 12, 14,
+  15, 14, 12,
+
+  // Back
+  16, 17, 18,
+  16, 18, 19,
+
+  // Bottom
+  21, 20, 22,
+  22, 20, 23
+];
+
+var cubeUV = [
+  // Top
+  0, 0,
+  0, 1,
+  1, 1,
+  1, 0,
+
+  // Left
+  0, 0,
+  1, 0,
+  1, 1,
+  0, 1,
+
+  // Right
+  1, 1,
+  0, 1,
+  0, 0,
+  1, 0,
+
+  // Front
+  1, 1,
+  1, 0,
+  0, 0,
+  0, 1,
+
+  // Back
+  0, 0,
+  0, 1,
+  1, 1,
+  1, 0,
+
+  // Bottom
+  1, 1,
+  1, 0,
+  0, 0,
+  0, 1
+];
+
 var objectColors = [
+  [Math.random(), Math.random(), Math.random(), 1.0],
   [Math.random(), Math.random(), Math.random(), 1.0],
   [Math.random(), Math.random(), Math.random(), 1.0]
 ];
@@ -34,11 +138,10 @@ var angle = 0;
 
 
 class Program {
-  constructor(gl) {
-    this.gl = gl;
+  constructor() {
     this.camera = new Camera(
       Utils.toRadians(FOV),
-      this.gl.canvas.clientWidth / this.gl.canvas.clientHeight,
+      gl.canvas.clientWidth / gl.canvas.clientHeight,
       NEAR,
       FAR,
       EYE,
@@ -57,12 +160,14 @@ class Program {
       .load([
         // Load shader files
         {type: "shader", name: "basic"},
+        {type: "shader", name: "basic-tex"},
         // Load model files
         {type: "model", name: "dragon"},
         {type: "model", name: "buddha"},
         {type: "model", name: "suzanne"},
         // Load texture files
         {type: "texture", name: "suzanne"},
+        {type: "texture", name: "crate"},
       ]);
 
     // Wait for all resource queries to finish
@@ -70,7 +175,7 @@ class Program {
       .then(objects => {
         var shaderObjects = {};
         var modelObjects = {};
-        var textureObjects = {};
+        var imgUrlObjects = {};
 
         Object.keys(objects).forEach(key => {
           if (key.charAt(0) == "s") {
@@ -78,13 +183,19 @@ class Program {
           } else if (key.charAt(0) == "m"){
             modelObjects[key.substring(2)] = objects[key];
           } else if (key.charAt(0) == "t"){
-            textureObjects[key.substring(2)] = objects[key];
+            imgUrlObjects[key.substring(2)] = objects[key];
           } else {
             throw Error("Invalid resource object passed through loader.");
           }
         });
 
-        this.setupScene(shaderObjects, modelObjects, textureObjects, runProgramCallback);
+        console.log(imgUrlObjects);
+        ResourceLoader.loadImages(
+          imgUrlObjects,
+          this,
+          this.setupScene,
+          [shaderObjects, modelObjects, runProgramCallback]
+        );
       })
       .catch(function(err){ console.log(err); });
   }
@@ -93,40 +204,59 @@ class Program {
     var shaderPrograms = {};
 
     Object.keys(shaderObjects).forEach(key => {
-      var shaderProgram = new ShaderProgram(this.gl, key, shaderObjects[key].vshSrc, shaderObjects[key].fshSrc);
+      var shaderProgram = new ShaderProgram(key, shaderObjects[key].vshSrc, shaderObjects[key].fshSrc);
 
       shaderPrograms[key] = shaderProgram;
     });
 
-    var dragonMesh = new SceneObject(
-      new ExternalGeometry(this.gl, modelObjects["suzanne"]), 
-      shaderPrograms["basic"],
-      this.gl.TRIANGLES);
+    var suzanne = new SceneObject(
+      "suzanne",
+      new ExternalGeometry(
+        shaderPrograms["basic-tex"],
+        modelObjects["suzanne"],
+        textureObjects["suzanne"]
+      ), 
+      gl.TRIANGLES
+    );
     var triangle = new SceneObject(
-      new Triangle(this.gl, positions),
-      shaderPrograms["basic"],
-      this.gl.TRIANGLES);
-    var triangle2 = new SceneObject(
-      new Triangle(this.gl, positions),
-      shaderPrograms["basic"],
-      this.gl.TRIANGLES);
-
-    // Scale, Rotate & Translate
-    dragonMesh.transform.rotateX(Utils.toRadians(-90));
-    dragonMesh.transform.translate([-6, 4, 6]);
-    triangle.transform.translate([0, 3, -2]);
-    triangle2.transform.translate([0, -3, 2]);
+      "triangle_01",
+      new Triangle(
+        shaderPrograms["basic"],
+        positions
+      ),
+      gl.TRIANGLES
+    );
+    // var triangle2 = new SceneObject(
+    //   "triangle_02",
+    //   new Triangle(
+    //     shaderPrograms["basic"],
+    //     positions
+    //   ),
+    //   gl.TRIANGLES
+    // );
+    var cube = new SceneObject(
+      "cube",
+      new Cube(
+        shaderPrograms["basic-tex"],
+        cubeVertices,
+        cubeIndices,
+        cubeUV,
+        textureObjects["crate"]
+      ),
+      gl.TRIANGLES
+    );
 
     //triangle2.setParent(triangle);
 
     // Add objects to scene
-    //this.scene.push(dragonMesh);
+    this.scene.push(suzanne);
     this.scene.push(triangle);
-    this.scene.push(triangle2);
+    //this.scene.push(triangle2);
+    this.scene.push(cube);
 
     // Run render loop
     this.run = true;
-    runProgramCallback(this.gl); 
+    runProgramCallback(gl); 
   }
 
   kill() {
@@ -134,36 +264,48 @@ class Program {
   }
 
   update() {
-    var canvas = this.gl.canvas;
-    var aspect = canvas.clientWidth / canvas.clientHeight;
+    var aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+
+    this.camera.update(aspect);
 
     // Perform transforms
     for (var i = 0; i < this.scene.length; i++) {
       var object = this.scene[i];
 
-      angle = angle + Utils.toRadians(-0.5);
+      angle = angle - 0.5;
 
-      object.transform.rotateZ(angle);
-      object.transform.updateModelMatrix();
+      if (object.identifier == "suzanne") {
+        object.transform.rotate([-120, angle, 0]);
+        object.transform.translate([-1, -1, 5]);
+      }
+      if (object.identifier == "cube") {
+        object.transform.rotate([-120, -angle, 0]);
+        object.transform.translate([5, 5, -5]);        
+      }
+      if (object.identifier == "triangle_01") {
+        object.transform.rotate([-120, angle, 0]);
+        object.transform.translate([1, 1, 5]);        
+      }
     }
 
     //this.scene[0].updateWorldMatrix();
   }
 
   render() {
-    this.gl.clearColor(0.0, 0.0, 0.0, 1.0);
-    this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     var viewProjectionMat = this.camera.getViewProjectionMatrix();
 
     for (var i = 0; i < this.scene.length; i++) {
       var object = this.scene[i];
-      var mesh = object.mesh;
-      var worldMatrix = this.scene[i].worldMat;
+      var modelMat = object.transform.getModelMatrix();
+      //var worldMatrix = object.worldMat;
+      var shaderProgram = object.geometry.shaderProgram;
 
-      mesh.shaderProgram.setUniform4f("u_color", objectColors[i]);
-      mesh.shaderProgram.setUniformMat4fv("u_viewProjMat", viewProjectionMat);
-      mesh.shaderProgram.setUniformMat4fv("u_modelMat", object.transform.modelMat /*worldMatrix*/);
+      shaderProgram.setUniform4f("u_color", objectColors[i]);
+      shaderProgram.setUniformMat4fv("u_viewProjMat", viewProjectionMat);
+      shaderProgram.setUniformMat4fv("u_modelMat", modelMat /*worldMatrix*/);
 
       object.draw();
     }
@@ -172,7 +314,7 @@ class Program {
 
 export default Program;
 export { 
-  ATTR_LOC_POSITION, 
-  ATTR_LOC_NORMAL, 
-  ATTR_LOC_UV 
+  ATTR_POSITION_NAME, 
+  ATTR_NORMAL_NAME, 
+  ATTR_UV_NAME 
 }
