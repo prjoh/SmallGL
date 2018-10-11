@@ -322,9 +322,9 @@ class Program {
         object.transform.translate([5, 1, -5]);
       }
       if (object.identifier == "light") {
-        object.transform.scale([0.1, 0.1, 0.1]);
         //object.transform.rotate([-120, -angle, 0]);
-        object.transform.translate([1.0, 0, 12.0]);
+        object.transform.translate([0.0, -1.0, 11.0]);
+        object.transform.scale([0.1, 0.1, 0.1]);
       }
       if (object.identifier == "container") {
         object.transform.rotate([0, 0, 0]);
@@ -404,6 +404,7 @@ class Program {
       shaderProgram.setMat4fv("u_viewProjMat", this.camera.getViewProjectionMatrix());
       shaderProgram.setMat4fv("u_modelMat", /*modelMat*/ worldMatrix);
       shaderProgram.setMat3fv("u_normalMat", normalMatrix);
+      shaderProgram.setMat4fv("u_viewMat", this.camera.viewMat);
 
       shaderProgram.setVec3f("u_material.ambient", [1.0, 0.5, 0.31]);
       if (object.identifier == "triangle_02") {
@@ -420,7 +421,7 @@ class Program {
         shaderProgram.setInt("u_material.specular", 1);        
       }
       shaderProgram.setFloat("u_material.shininess", 32.0);
-      shaderProgram.setVec3f("u_light.position", [1.0, 0, 12.0]);
+      shaderProgram.setVec3f("u_light.position", [0.0, -1.0, 11.0]);
       shaderProgram.setVec3f("u_light.ambient", [0.2, 0.2, 0.2]);
       shaderProgram.setVec3f("u_light.diffuse", [0.5, 0.5, 0.5]);
       shaderProgram.setVec3f("u_light.specular", [1.0, 1.0, 1.0]);
