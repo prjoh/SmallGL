@@ -51,7 +51,6 @@ function loadImages(imageUrls, cbOwner, callback, callbackArgs) {
     loaded++;
 
     if (loaded == Object.keys(imageUrls).length) {
-      console.log(result["success"]);
       callback.call(cbOwner, callbackArgs[0], callbackArgs[1], result["success"], callbackArgs[2]);
     }
   };

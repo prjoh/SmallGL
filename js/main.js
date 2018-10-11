@@ -23,7 +23,7 @@ function initWebGL() {
   program.init(runProgram);
 }
 
-function getWebGLContext() {
+function getWebGLContext(canvas) {
   var canvas = document.getElementById('canvas');
 
   if (DEFAULT_WEBGL_2) {

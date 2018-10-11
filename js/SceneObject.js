@@ -28,18 +28,13 @@ class SceneObject {
   }
 
   draw() {
-    var shaderProgram = this.geometry.shaderProgram;
-    var vao = this.geometry.gl_vao;
-    var texture = this.geometry.gl_texture;
+    var geometry = this.geometry;
+    var shaderProgram = geometry.shaderProgram;
     var count = this.geometry.count;
 
     shaderProgram.set();
-
-    gl.bindVertexArray(vao);
-
-    if (texture) {
-      gl.bindTexture(gl.TEXTURE_2D, texture);
-    }
+    geometry.setVAO();
+    geometry.bindTextures();
 
     if (this.geometry.indexed) {
       gl.drawElements(this.drawMode, count, gl.UNSIGNED_SHORT, 0);
@@ -47,6 +42,8 @@ class SceneObject {
       gl.drawArrays(this.drawMode, 0, count);
     }
 
+    geometry.unbindTextures();
+    geometry.unsetVAO();
     shaderProgram.unset();
   }
 

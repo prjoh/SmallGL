@@ -7,4 +7,9 @@ canvas {
   display: block;  /* prevents scrollbar */
   width: 100vw;
   height: 100vh;
+/*  width: 400px;
+  height: 400px;
+  position: relative;
+  top: 100px;
+  left: 100px;*/
 }

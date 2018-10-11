@@ -5,7 +5,7 @@ class ShaderProgram {
     this.gl_program = this.createShaderProgram(shaderName, vshSrc, fshSrc);
   }
 
-  createShaderProgram(/*gl, */shaderName, vshSrc, fshSrc) {
+  createShaderProgram(shaderName, vshSrc, fshSrc) {
     var shaderProgram = null;
 
     var gl_vsh = gl.createShader(gl.VERTEX_SHADER);
@@ -67,7 +67,34 @@ class ShaderProgram {
     gl.useProgram(null);
   }
 
-  setUniform4f(name, data) {
+  setInt(name, data) {
+    this.set();
+    gl.uniform1i(
+      gl.getUniformLocation(this.gl_program, name),
+      data
+    );
+    this.unset();
+  }
+
+  setFloat(name, data) {
+    this.set();
+    gl.uniform1f(
+      gl.getUniformLocation(this.gl_program, name),
+      data
+    );
+    this.unset();
+  }
+
+  setVec3f(name, data) {
+    this.set();
+    gl.uniform3f(
+      gl.getUniformLocation(this.gl_program, name),
+      data[0], data[1], data[2]
+    );
+    this.unset();
+  }
+
+  setVec4f(name, data) {
     this.set();
     gl.uniform4f(
       gl.getUniformLocation(this.gl_program, name),
@@ -76,7 +103,17 @@ class ShaderProgram {
     this.unset();
   }
 
-  setUniformMat4fv(name, data) {
+  setMat3fv(name, data) {
+    this.set();
+    gl.uniformMatrix3fv(
+      gl.getUniformLocation(this.gl_program, name),
+      false,
+      data
+    );
+    this.unset(); 
+  }
+
+  setMat4fv(name, data) {
     this.set();
     gl.uniformMatrix4fv(
       gl.getUniformLocation(this.gl_program, name),
@@ -84,15 +121,6 @@ class ShaderProgram {
       data
     );
     this.unset();    
-  }
-
-  setUniform1i(name, textureUnit) {
-    this.set();
-    gl.uniform1i(
-      gl.getUniformLocation(this.gl_program, name),
-      textureUnit
-    );
-    this.unset();
   }
 }
 
