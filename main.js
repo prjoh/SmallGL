@@ -80,23 +80,15 @@ function resizeCanvas(canvas) {
   if (RENDER_HD_DPI) {
     var cssToRealPixels = window.devicePixelRatio || 1;
 
-    // Lookup the size the browser is displaying the canvas in CSS pixels
-    // and compute a size needed to make our drawingbuffer match it in
-    // device pixels.
     displayWidth  = Math.floor(canvas.clientWidth  * cssToRealPixels);
     displayHeight = Math.floor(canvas.clientHeight * cssToRealPixels);
 
   } else {
-    // Lookup the size the browser is displaying the canvas.
     displayWidth  = canvas.clientWidth;
     displayHeight = canvas.clientHeight;
   }
 
-  // Check if the canvas is not the same size.
-  if (canvas.width  !== displayWidth ||
-      canvas.height !== displayHeight) {
-
-    // Make the canvas the same size
+  if (canvas.width  !== displayWidth || canvas.height !== displayHeight) {
     canvas.width  = displayWidth;
     canvas.height = displayHeight;
   }
