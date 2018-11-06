@@ -14,8 +14,6 @@ uniform Light u_light;
 uniform mat4 u_modelViewProjMat;
 uniform mat4 u_modelViewMat;
 uniform mat4 u_viewMat;
-//uniform mat4 u_viewProjMat;
-//uniform mat4 u_modelMat;
 uniform mat3 u_normalMat;
 
 in vec3 a_position;

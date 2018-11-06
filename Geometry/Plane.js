@@ -1,17 +1,38 @@
-import {gl} from "./main.js";
+import {gl} from "../main.js";
+import {ATTR_POSITION_NAME, ATTR_NORMAL_NAME, ATTR_UV_NAME} from "../Program.js"
 import Geometry from "./Geometry.js";
-import {ATTR_POSITION_NAME, ATTR_NORMAL_NAME, ATTR_UV_NAME} from "./Program.js"
 
-class Triangle extends Geometry {
-  constructor(gl_program, vertices) {
+class Plane extends Geometry {
+  constructor(gl_program, center, width, height, resolution) {
     super(gl_program);
-    this.count = 3;
-    this.indexed = false;
+    this.indexed = true;
 
-    this.createVAO(vertices);
+    //var triangles = (2*width)*(2*height);
+    var y = center[1];
+    var vertices = [];
+
+    for (var z = 0; z <= height; z++) {
+      for (var x = 0; x <= width; x++) {
+        vertices.push(x, y, z);
+      }
+    }
+
+    var indices = [];
+
+    for (var j = 0; j < height; j++) {
+      for (var i = 0; i < width; i++) {
+        var row = j * (width+1);
+        indices.push(i+row, i+(width+1)+row, i+(width+2)+row);
+        indices.push(i+row, i+(width+2)+row, i+1+row);
+      }
+    }
+
+    this.count = indices.length;
+
+    this.createVAO(vertices, indices);
   }
 
-  createVAO(vertices) {
+  createVAO(vertices, indices) {
     this.gl_vao =  gl.createVertexArray();
 
     // Buffer vertices
@@ -55,20 +76,17 @@ class Triangle extends Geometry {
     //   throw Error("Normals data could not be buffered!");
     // }
 
-    // var iBuffer = gl.createBuffer();
-
-    // if (indices !== undefined && indices != null) {
-    //   gl.bindVertexArray(this.gl_vao);
-    //   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, iBuffer);
-    //   gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
-    //   gl.bindVertexArray(null);
-    //   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-
-    //   this.count = indices.length;
-    // } else {
-    //   throw Error("Index data could not be buffered!");
-    // }
+    // Buffer indices
+    if (indices !== undefined && indices != null) {
+      this.bufferIndices(
+        gl.ELEMENT_ARRAY_BUFFER,
+        indices,
+        gl.STATIC_DRAW
+      );
+    } else {
+      throw Error("Index data could not be buffered!");
+    }
   }
 }
 
-export default Triangle;
+export default Plane;

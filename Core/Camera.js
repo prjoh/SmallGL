@@ -1,5 +1,5 @@
-import {gl} from "./main.js";
-import {MOUSE_SENSITIVITY} from "./Program.js"
+import {gl} from "../main.js";
+import {MOUSE_SENSITIVITY} from "../Program.js"
 import Transform from "./Transform.js";
 import Utils from "./Utils.js";
 

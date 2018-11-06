@@ -18,11 +18,12 @@ struct Light {
 
 uniform Material u_material;
 uniform Light u_light;
-uniform vec3 u_eyePosition;
+//uniform vec3 u_eyePosition;
 
 in vec2 v_texCoord;
 in vec3 v_normal;
 in vec3 f_position;
+in vec3 v_lightPos;
 
 out vec4 outColor;
 
@@ -35,12 +36,12 @@ void main() {
 
   // diffuse
   vec3 normal = normalize(v_normal);
-  vec3 lightDir = normalize(u_light.position - f_position);
+  vec3 lightDir = normalize(v_lightPos - f_position);
   float diff = max(dot(normal, lightDir), 0.0);
   vec3 diffuse = u_light.diffuse * diff * diffuseTex;
 
   // specular
-  vec3 viewDir = normalize(u_eyePosition - f_position);
+  vec3 viewDir = normalize(-f_position);
   vec3 reflectDir = reflect(-lightDir, normal);
   float spec = pow(max(dot(viewDir, reflectDir), 0.0), u_material.shininess);
   vec3 specular = u_light.specular * (spec * specularTex);

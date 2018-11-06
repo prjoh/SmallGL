@@ -1,11 +1,11 @@
 import {gl} from "./main.js";
-import EventHandler from "./EventHandler.js";
-import Utils from "./Utils.js";
-import Camera from "./Camera.js";
-import ResourceLoader from "./ResourceLoader.js";
-import ShaderProgram from "./ShaderProgram.js";
-import SceneObject from "./SceneObject.js";
-import {ExternalGeometry, Triangle, Cube} from "./Geometries.js";
+import EventHandler from "./core/EventHandler.js";
+import Utils from "./core/Utils.js";
+import Camera from "./core/Camera.js";
+import ResourceLoader from "./core/ResourceLoader.js";
+import ShaderProgram from "./core/ShaderProgram.js";
+import SceneObject from "./core/SceneObject.js";
+import {ExternalGeometry, Triangle, Cube, Line, Plane} from "./geometry/Geometries.js";
 
 /* Attribute names in shader */
 const ATTR_POSITION_NAME = "a_position";
@@ -16,8 +16,8 @@ const ATTR_UV_NAME = "a_texCoord";
 const FOV = 75;
 const NEAR = 0.1;
 const FAR = 1000;
-const EYE = [0.0, 0.0, 15.0];
-const CENTER = [0.0, 0.0, 0.0];
+const EYE = [2.0, 2.0, 15.0];
+const CENTER = [3.0, 0.0, 0.0];
 const UP = [0.0, 1.0, 0.0];
 const CAMERA_SPEED = 0.05;
 const MOUSE_SENSITIVITY = 0.1;
@@ -137,7 +137,11 @@ var objectColors = [
   [Math.random(), Math.random(), Math.random(), 1.0],
   [Math.random(), Math.random(), Math.random(), 1.0],
   [1.0, 1.0, 1.0, 1.0],
-  [Math.random(), Math.random(), Math.random(), 1.0]
+  [Math.random(), Math.random(), Math.random(), 1.0],
+  [0, 255, 0, 1.0],
+  [0, 255, 0, 1.0],
+  [0, 255, 0, 1.0],
+  [0.45, 0.45, 0.45, 1.0]
 ];
 
 var angle = 0;
@@ -279,6 +283,44 @@ class Program {
       ),
       gl.TRIANGLES
     );
+    var xAxis = new SceneObject(
+      "xAxis",
+      new Line(
+        shaderPrograms["basic"],
+        [0, 0, 0],
+        [25, 0, 0]
+      ),
+      gl.LINES
+    );
+    var yAxis = new SceneObject(
+      "yAxis",
+      new Line(
+        shaderPrograms["basic"],
+        [0, 0, 0],
+        [0, 25, 0]
+      ),
+      gl.LINES
+    );
+    var zAxis = new SceneObject(
+      "zAxis",
+      new Line(
+        shaderPrograms["basic"],
+        [0, 0, 0],
+        [0, 0, 25]
+      ),
+      gl.LINES
+    );
+    var plane = new SceneObject(
+      "plane",
+      new Plane(
+        shaderPrograms["basic"],
+        [0, 0, 0],  // center of plane
+        60,         // width: 1 unit on xAxis (world coordinates)
+        30,         // height: 1 unit on yAxis (world coordinates)
+        25          // number of triangles in w*h
+      ),
+      gl.TRIANGLES
+    );
 
     triangle2.setParent(triangle);
 
@@ -289,6 +331,10 @@ class Program {
     this.scene.push(cube);
     this.scene.push(light);
     this.scene.push(container);
+    this.scene.push(xAxis);
+    this.scene.push(yAxis);
+    this.scene.push(zAxis);
+    this.scene.push(plane);
 
     // Init Event Handling
     EventHandler.initEventHandling();
@@ -311,32 +357,35 @@ class Program {
       var object = this.scene[i];
 
       angle = angle - 0.1;
-      lightMov = lightMov + 0.01;
+      lightMov = lightMov + 0.001;
 
       if (object.identifier == "suzanne") {
         object.transform.rotate([-120, 0, 0]);
-        object.transform.translate([-1, -1, 5]);
+        object.transform.translate([1, 1, 5]);
       }
       if (object.identifier == "cube") {
         object.transform.rotate([-100, 0, 0]);
-        object.transform.translate([5, 1, -5]);
+        object.transform.translate([7, 2, -5]);
       }
       if (object.identifier == "light") {
         //object.transform.rotate([-120, -angle, 0]);
-        object.transform.translate([0.0, -1.0, 11.0]);
+        object.transform.translate([3.5, 1.0, 11.0 * Math.sin(lightMov)]);
         object.transform.scale([0.1, 0.1, 0.1]);
       }
       if (object.identifier == "container") {
         object.transform.rotate([0, 0, 0]);
-        object.transform.translate([8, 0, 0]);
+        object.transform.translate([10, 1.0, 0]);
       }      
       if (object.identifier == "triangle_01") {
         object.transform.rotate([0, 0, angle]);
-        object.transform.translate([-3, 3, 0]);
+        object.transform.translate([-1, 5, 0]);
       }
       if (object.identifier == "triangle_02") {
         object.transform.rotate([0, 0, angle]);
-        object.transform.translate([-2, 3, 0]);
+        object.transform.translate([0, 5, 0]);
+      }
+      if (object.identifier == "plane") {
+        object.transform.translate([-30, 0, -15]);
       }
     }
 
@@ -345,6 +394,7 @@ class Program {
     this.scene[3].updateWorldMatrix();
     this.scene[4].updateWorldMatrix();
     this.scene[5].updateWorldMatrix();
+    this.scene[9].updateWorldMatrix();
   }
 
   handleEvents() {
@@ -421,7 +471,7 @@ class Program {
         shaderProgram.setInt("u_material.specular", 1);        
       }
       shaderProgram.setFloat("u_material.shininess", 32.0);
-      shaderProgram.setVec3f("u_light.position", [0.0, -1.0, 11.0]);
+      shaderProgram.setVec3f("u_light.position", [3.5, 1.0, 11.0 * Math.sin(lightMov)]);
       shaderProgram.setVec3f("u_light.ambient", [0.2, 0.2, 0.2]);
       shaderProgram.setVec3f("u_light.diffuse", [0.5, 0.5, 0.5]);
       shaderProgram.setVec3f("u_light.specular", [1.0, 1.0, 1.0]);

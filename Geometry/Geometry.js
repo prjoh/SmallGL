@@ -1,4 +1,4 @@
-import {gl} from "./main.js";
+import {gl} from "../main.js";
 
 class Geometry {
   constructor(shaderProgram) {

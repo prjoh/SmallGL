@@ -1,4 +1,4 @@
-import {gl} from "./main.js";
+import {gl} from "../main.js";
 
 var mouseInput = {
   xPos: null,

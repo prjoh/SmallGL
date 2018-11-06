@@ -1,4 +1,4 @@
-import {gl} from "./main.js";
+import {gl} from "../main.js";
 import Transform from "./Transform.js"
 
 class SceneObject {

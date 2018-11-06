@@ -1,4 +1,4 @@
-import * as glMatrix from "./gl-matrix-min.js";
+import * as glMatrix from "../lib/gl-matrix-min.js";
 import Utils from "./Utils.js";
 
 class Transform {

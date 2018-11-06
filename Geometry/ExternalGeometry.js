@@ -1,28 +1,29 @@
-import {gl} from "./main.js";
+import {gl} from "../main.js";
+import {ATTR_POSITION_NAME, ATTR_NORMAL_NAME, ATTR_UV_NAME} from "../Program.js"
 import Geometry from "./Geometry.js";
-import {ATTR_POSITION_NAME, ATTR_NORMAL_NAME, ATTR_UV_NAME} from "./Program.js"
 
-class Cube extends Geometry {
-  constructor(gl_program, vertices, normals, indices, uvCoord, textureData, textureNames) {
+class ExternalGeometry extends Geometry {
+  constructor(gl_program, meshData, textureData, textureNames) {
     super(gl_program);
-    this.count = indices.length;
     this.indexed = true;
-
+    
     if (textureData) {
-      this.createVAO(vertices, normals, indices, uvCoord, true);
+      this.createVAO(meshData, true);
 
       for (var i = 0; i < textureNames.length; i++) {
-        this.createTexture(textureData[textureNames[i]], false, i);
+        this.createTexture(textureData[textureNames[i]], true, i);
       }
     } else {
-      this.createVAO(vertices, normals, indices, uvCoord, false);      
+      this.createVAO(meshData, false);      
     }
   }
 
-  createVAO(vertices, normals, indices, texCoords, setTexture) {
+  createVAO(meshData, setTexture) {
     this.gl_vao =  gl.createVertexArray();
-
+ 
     // Buffer vertices
+    var vertices = meshData.json.meshes[0].vertices;
+
     if (vertices !== undefined && vertices != null) {
       var attribLoc = gl.getAttribLocation(this.shaderProgram.gl_program, ATTR_POSITION_NAME);
       
@@ -42,6 +43,8 @@ class Cube extends Geometry {
     }
 
     // Buffer normals
+    var normals = meshData.json.meshes[0].normals;
+
     if (normals !== undefined && normals != null) {
       var attribLoc = gl.getAttribLocation(this.shaderProgram.gl_program, ATTR_NORMAL_NAME);
       
@@ -62,6 +65,8 @@ class Cube extends Geometry {
 
     if (setTexture) {
       // Buffer uv
+      var texCoords = meshData.json.meshes[0].texturecoords[0];
+
       if (texCoords !== undefined && texCoords != null) {
         var attribLoc = gl.getAttribLocation(this.shaderProgram.gl_program, ATTR_UV_NAME);
         
@@ -82,6 +87,8 @@ class Cube extends Geometry {
     }
 
     // Buffer indices
+    var indices = [].concat.apply([], meshData.json.meshes[0].faces);
+
     if (indices !== undefined && indices != null) {
       this.bufferIndices(
         gl.ELEMENT_ARRAY_BUFFER,
@@ -96,8 +103,8 @@ class Cube extends Geometry {
   // createTexture(textureData) {
   //   this.gl_texture = gl.createTexture();
 
-  //   //gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-  //   //gl.activeTexture(gl.TEXTURE0);
+  //   gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+  //   // gl.activeTexture(gl.TEXTURE0);
   //   gl.bindTexture(gl.TEXTURE_2D, this.gl_texture);
   //   gl.texImage2D(
   //     gl.TEXTURE_2D,     // target
@@ -121,4 +128,4 @@ class Cube extends Geometry {
   // }
 }
 
-export default Cube;
+export default ExternalGeometry;
