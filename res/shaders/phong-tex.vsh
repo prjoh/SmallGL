@@ -3,11 +3,11 @@
 precision mediump float;
 
 struct Light {
-    vec3 position;
-  
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
+  vec3 position;
+
+  vec3 ambient;
+  vec3 diffuse;
+  vec3 specular;
 };
 
 uniform Light u_light;
