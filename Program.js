@@ -23,13 +23,13 @@ const CAMERA_SPEED = 0.05;
 const MOUSE_SENSITIVITY = 0.1;
 
 /* Object data */
-var positions = [
+let positions = [
   0, 0, 0,
   1, 0, 0,
   0, 1, 0,
 ];
 
-var cubeVertices = [
+let cubeVertices = [
   // Top
   -1.0, 1.0, -1.0,
   -1.0, 1.0, 1.0,
@@ -67,7 +67,7 @@ var cubeVertices = [
   1.0, -1.0, -1.0
 ];
 
-var cubeIndices = [
+let cubeIndices = [
   // Top
   0, 1, 2,
   0, 2, 3,
@@ -93,7 +93,7 @@ var cubeIndices = [
   22, 20, 23
 ];
 
-var cubeUV = [
+let cubeUV = [
   // Top
   0, 0,
   0, 1,
@@ -131,7 +131,7 @@ var cubeUV = [
   0, 1
 ];
 
-var objectColors = [
+let objectColors = [
   [Math.random(), Math.random(), Math.random(), 1.0],
   [Math.random(), Math.random(), Math.random(), 1.0],
   [Math.random(), Math.random(), Math.random(), 1.0],
@@ -144,8 +144,8 @@ var objectColors = [
   [0.45, 0.45, 0.45, 1.0]
 ];
 
-var angle = 0;
-var lightMov = -25;
+let angle = 0;
+let lightMov = -25;
 
 
 class Program {
@@ -163,7 +163,7 @@ class Program {
   }
 
   init(runProgramCallback) {
-    var resourcePromises = ResourceLoader
+    let resourcePromises = ResourceLoader
       .load([
         // Load shader files
         {type: "shader", name: "basic"},
@@ -185,9 +185,9 @@ class Program {
     // Wait for all resource queries to finish
     Promise.resolve(resourcePromises)
       .then(objects => {
-        var shaderObjects = {};
-        var modelObjects = {};
-        var imgUrlObjects = {};
+        let shaderObjects = {};
+        let modelObjects = {};
+        let imgUrlObjects = {};
 
         Object.keys(objects).forEach(key => {
           if (key.charAt(0) == "s") {
@@ -212,15 +212,15 @@ class Program {
   }
 
   setupScene(shaderObjects, modelObjects, textureObjects, runProgramCallback) {
-    var shaderPrograms = {};
+    let shaderPrograms = {};
 
     Object.keys(shaderObjects).forEach(key => {
-      var shaderProgram = new ShaderProgram(key, shaderObjects[key].vshSrc, shaderObjects[key].fshSrc);
+      let shaderProgram = new ShaderProgram(key, shaderObjects[key].vshSrc, shaderObjects[key].fshSrc);
 
       shaderPrograms[key] = shaderProgram;
     });
 
-    var suzanne = new SceneObject(
+    let suzanne = new SceneObject(
       "suzanne",
       new ExternalGeometry(
         shaderPrograms["phong-tex"],
@@ -230,7 +230,7 @@ class Program {
       ), 
       gl.TRIANGLES
     );
-    var triangle = new SceneObject(
+    let triangle = new SceneObject(
       "triangle_01",
       new Triangle(
         shaderPrograms["basic"],
@@ -238,7 +238,7 @@ class Program {
       ),
       gl.TRIANGLES
     );
-    var triangle2 = new SceneObject(
+    let triangle2 = new SceneObject(
       "triangle_02",
       new Triangle(
         shaderPrograms["basic"],
@@ -246,7 +246,7 @@ class Program {
       ),
       gl.TRIANGLES
     );
-    var cube = new SceneObject(
+    let cube = new SceneObject(
       "cube",
       new Cube(
         shaderPrograms["phong-tex"],
@@ -259,7 +259,7 @@ class Program {
       ),
       gl.TRIANGLES
     );
-    var light = new SceneObject(
+    let light = new SceneObject(
       "light",
       new Cube(
         shaderPrograms["basic"],
@@ -270,7 +270,7 @@ class Program {
       ),
       gl.TRIANGLES
     );
-    var container = new SceneObject(
+    let container = new SceneObject(
       "container",
       new Cube(
         shaderPrograms["phong-tex-spec"],
@@ -283,7 +283,7 @@ class Program {
       ),
       gl.TRIANGLES
     );
-    var xAxis = new SceneObject(
+    let xAxis = new SceneObject(
       "xAxis",
       new Line(
         shaderPrograms["basic"],
@@ -292,7 +292,7 @@ class Program {
       ),
       gl.LINES
     );
-    var yAxis = new SceneObject(
+    let yAxis = new SceneObject(
       "yAxis",
       new Line(
         shaderPrograms["basic"],
@@ -301,7 +301,7 @@ class Program {
       ),
       gl.LINES
     );
-    var zAxis = new SceneObject(
+    let zAxis = new SceneObject(
       "zAxis",
       new Line(
         shaderPrograms["basic"],
@@ -310,7 +310,7 @@ class Program {
       ),
       gl.LINES
     );
-    var plane = new SceneObject(
+    let plane = new SceneObject(
       "plane",
       new Plane(
         shaderPrograms["basic"],
@@ -353,8 +353,8 @@ class Program {
     this.camera.update();
 
     // Perform transforms
-    for (var i = 0; i < this.scene.length; i++) {
-      var object = this.scene[i];
+    for (let i = 0; i < this.scene.length; i++) {
+      let object = this.scene[i];
 
       angle = angle - 0.1;
       lightMov = lightMov + 0.001;
@@ -398,16 +398,16 @@ class Program {
   }
 
   handleEvents() {
-    //var lastX = EventHandler.getLastX();
-    //var lastY = EventHandler.getLastY();
-    var mouseX = EventHandler.getMouseX();
-    var mouseY = EventHandler.getMouseY();
+    //let lastX = EventHandler.getLastX();
+    //let lastY = EventHandler.getLastY();
+    let mouseX = EventHandler.getMouseX();
+    let mouseY = EventHandler.getMouseY();
 
     if (mouseX != null && mouseY != null) {
-      // var x = 4 * (mouseX / gl.canvas.width * 2 - 1);
-      // var y = 4 * (mouseY / gl.canvas.height * -2 + 1);
-      // var z = this.camera.position[2] - 5;    
-      // var viewAt = [x, y, z];
+      // let x = 4 * (mouseX / gl.canvas.width * 2 - 1);
+      // let y = 4 * (mouseY / gl.canvas.height * -2 + 1);
+      // let z = this.camera.position[2] - 5;    
+      // let viewAt = [x, y, z];
 
       //EventHandler.setLastX(mouseX);
       //EventHandler.setLastY(mouseY);
@@ -436,14 +436,14 @@ class Program {
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    for (var i = 0; i < this.scene.length; i++) {
-      var object = this.scene[i];
-      var modelViewProjMat = mat4.create();
-      //var modelMat = object.transform.getModelMatrix();
-      var worldMatrix = object.worldMat;
-      var worldViewMatrix = mat4.create();
-      var normalMatrix = mat3.create();
-      var shaderProgram = object.geometry.shaderProgram;
+    for (let i = 0; i < this.scene.length; i++) {
+      let object = this.scene[i];
+      let modelViewProjMat = mat4.create();
+      //let modelMat = object.transform.getModelMatrix();
+      let worldMatrix = object.worldMat;
+      let worldViewMatrix = mat4.create();
+      let normalMatrix = mat3.create();
+      let shaderProgram = object.geometry.shaderProgram;
 
       mat4.mul(modelViewProjMat, this.camera.getViewProjectionMatrix(), worldMatrix);
       mat4.mul(worldViewMatrix, this.camera.viewMat, worldMatrix);
