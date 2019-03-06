@@ -16,7 +16,7 @@ class Triangle extends Geometry {
 
     // Buffer vertices
     if (vertices !== undefined && vertices != null) {
-      var attribLoc = gl.getAttribLocation(this.shaderProgram.gl_program, ATTR_POSITION_NAME);
+      let attribLoc = gl.getAttribLocation(this.shaderProgram.gl_program, ATTR_POSITION_NAME);
       
       if (attribLoc != -1) {
         this.bufferAttrib(
@@ -33,7 +33,7 @@ class Triangle extends Geometry {
       throw Error("Position data could not be buffered!");
     }
 
-    // var nBuffer = gl.createBuffer();
+    // let nBuffer = gl.createBuffer();
 
     // // Buffer normals
     // if (normals !== undefined && normals != null) {
@@ -55,7 +55,7 @@ class Triangle extends Geometry {
     //   throw Error("Normals data could not be buffered!");
     // }
 
-    // var iBuffer = gl.createBuffer();
+    // let iBuffer = gl.createBuffer();
 
     // if (indices !== undefined && indices != null) {
     //   gl.bindVertexArray(this.gl_vao);

@@ -16,7 +16,7 @@ class Line extends Geometry {
 
     // Buffer vertices
     if (vertices !== undefined && vertices != null) {
-      var attribLoc = gl.getAttribLocation(this.shaderProgram.gl_program, ATTR_POSITION_NAME);
+      let attribLoc = gl.getAttribLocation(this.shaderProgram.gl_program, ATTR_POSITION_NAME);
       
       if (attribLoc != -1) {
         this.bufferAttrib(

@@ -10,7 +10,7 @@ class ExternalGeometry extends Geometry {
     if (textureData) {
       this.createVAO(meshData, true);
 
-      for (var i = 0; i < textureNames.length; i++) {
+      for (let i = 0; i < textureNames.length; i++) {
         this.createTexture(textureData[textureNames[i]], true, i);
       }
     } else {
@@ -22,10 +22,10 @@ class ExternalGeometry extends Geometry {
     this.gl_vao =  gl.createVertexArray();
  
     // Buffer vertices
-    var vertices = meshData.json.meshes[0].vertices;
+    let vertices = meshData.json.meshes[0].vertices;
 
     if (vertices !== undefined && vertices != null) {
-      var attribLoc = gl.getAttribLocation(this.shaderProgram.gl_program, ATTR_POSITION_NAME);
+      let attribLoc = gl.getAttribLocation(this.shaderProgram.gl_program, ATTR_POSITION_NAME);
       
       if (attribLoc != -1) {
         this.bufferAttrib(
@@ -43,10 +43,10 @@ class ExternalGeometry extends Geometry {
     }
 
     // Buffer normals
-    var normals = meshData.json.meshes[0].normals;
+    let normals = meshData.json.meshes[0].normals;
 
     if (normals !== undefined && normals != null) {
-      var attribLoc = gl.getAttribLocation(this.shaderProgram.gl_program, ATTR_NORMAL_NAME);
+      let attribLoc = gl.getAttribLocation(this.shaderProgram.gl_program, ATTR_NORMAL_NAME);
       
       if (attribLoc != -1) {
         this.bufferAttrib(
@@ -65,10 +65,10 @@ class ExternalGeometry extends Geometry {
 
     if (setTexture) {
       // Buffer uv
-      var texCoords = meshData.json.meshes[0].texturecoords[0];
+      let texCoords = meshData.json.meshes[0].texturecoords[0];
 
       if (texCoords !== undefined && texCoords != null) {
-        var attribLoc = gl.getAttribLocation(this.shaderProgram.gl_program, ATTR_UV_NAME);
+        let attribLoc = gl.getAttribLocation(this.shaderProgram.gl_program, ATTR_UV_NAME);
         
         if (attribLoc != -1) {
           this.bufferAttrib(
@@ -87,7 +87,7 @@ class ExternalGeometry extends Geometry {
     }
 
     // Buffer indices
-    var indices = [].concat.apply([], meshData.json.meshes[0].faces);
+    let indices = [].concat.apply([], meshData.json.meshes[0].faces);
 
     if (indices !== undefined && indices != null) {
       this.bufferIndices(

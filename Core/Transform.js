@@ -13,13 +13,13 @@ class Transform {
   }
 
   rotate(rotationVector) {
-    var radiansX = Utils.toRadians(rotationVector[0]);
-    var radiansY = Utils.toRadians(rotationVector[1]);
-    var radiansZ = Utils.toRadians(rotationVector[2]);
+    let radiansX = Utils.toRadians(rotationVector[0]);
+    let radiansY = Utils.toRadians(rotationVector[1]);
+    let radiansZ = Utils.toRadians(rotationVector[2]);
 
-    var xRotation = new Float32Array(16);
-    var yRotation = new Float32Array(16);
-    var zRotation = new Float32Array(16);
+    let xRotation = new Float32Array(16);
+    let yRotation = new Float32Array(16);
+    let zRotation = new Float32Array(16);
 
     mat4.fromXRotation(xRotation, radiansX);
     mat4.fromYRotation(yRotation, radiansY);
@@ -36,7 +36,7 @@ class Transform {
   }
 
   getModelMatrix() {
-    var modelMat = mat4.create();
+    let modelMat = mat4.create();
 
     mat4.mul(modelMat, modelMat, this.translation);
     mat4.mul(modelMat, modelMat, this.rotation);
@@ -46,8 +46,8 @@ class Transform {
   }
 
   getNormalMatrix (viewMat) {
-    var modelViewMat = new Float32Array(16);
-    var normalMat = new Float32Array(9);
+    let modelViewMat = new Float32Array(16);
+    let normalMat = new Float32Array(9);
 
     mat4.mul(modelViewMat, viewMatrix, this.modelMat);
     mat3.normalFromMat4(normalMat, modelViewMat);

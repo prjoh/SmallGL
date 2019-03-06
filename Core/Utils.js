@@ -7,23 +7,23 @@ function toDegrees(radians) {
 }
 
 function computeNormals(vertices, indices) {
-  var normals = [];
+  let normals = [];
 
-  for (var i = 0; i < vertices.length; i++) {
+  for (let i = 0; i < vertices.length; i++) {
     normals[i] = 0;
   }
 
-  for (var i = 0; i < indices.length;) {
-    var ia = indices[i];
-    var ib = indices[i+1];
-    var ic = indices[i+2];
-    var a = [vertices[ia*3], vertices[ia*3+1], vertices[ia*3+2]];
-    var b = [vertices[ib*3], vertices[ib*3+1], vertices[ib*3+2]];
-    var c = [vertices[ic*3], vertices[ic*3+1], vertices[ic*3+2]];
-    var ab = vec3.create();
-    var ac = vec3.create();
-    var cross = vec3.create();
-    var normal = vec3.create();
+  for (let i = 0; i < indices.length;) {
+    let ia = indices[i];
+    let ib = indices[i+1];
+    let ic = indices[i+2];
+    let a = [vertices[ia*3], vertices[ia*3+1], vertices[ia*3+2]];
+    let b = [vertices[ib*3], vertices[ib*3+1], vertices[ib*3+2]];
+    let c = [vertices[ic*3], vertices[ic*3+1], vertices[ic*3+2]];
+    let ab = vec3.create();
+    let ac = vec3.create();
+    let cross = vec3.create();
+    let normal = vec3.create();
 
     vec3.sub(ab, b, a);
     vec3.sub(ac, c, a);
@@ -42,9 +42,9 @@ function computeNormals(vertices, indices) {
     i = i+3;
   }
 
-  for (var i = 0; i < normals.length;) {
-    var normal = [normals[i], normals[i+1], normals[i+2]];
-    var nNormal = vec3.create();
+  for (let i = 0; i < normals.length;) {
+    let normal = [normals[i], normals[i+1], normals[i+2]];
+    let nNormal = vec3.create();
 
     vec3.normalize(nNormal, normal);
 

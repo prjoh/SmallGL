@@ -2,10 +2,12 @@ import Program from "./Program.js";
 
 const DEFAULT_WEBGL_2 = true;
 const RENDER_HD_DPI = true;
+const FPS = 60;
+const FRAME_TIME = 1000/FPS;
 
-var gl = null;
-var webglVersion = null;
-var program = null;
+let gl = null;
+let webglVersion = null;
+let program = null;
 
 function initWebGL() {
   getWebGLContext();
@@ -18,16 +20,19 @@ function initWebGL() {
   gl.frontFace(gl.CCW);
   gl.cullFace(gl.BACK);
 
+  let fullscreenButton = document.getElementById('fullscreen-button');
+  fullscreenButton.addEventListener("click", activateFullscreen);
+
   program = new Program();
 
   program.init(runProgram);
 }
 
-function getWebGLContext(canvas) {
-  var canvas = document.getElementById('canvas');
+function getWebGLContext() {
+  let canvas = document.getElementById('canvas-scene');
 
   if (DEFAULT_WEBGL_2) {
-  	var webgl2Supported = (typeof WebGL2RenderingContext !== 'undefined');
+    let webgl2Supported = (typeof WebGL2RenderingContext !== 'undefined');
 
   	if (webgl2Supported) {
       gl = canvas.getContext('webgl2');
@@ -59,7 +64,19 @@ function getWebGLContext(canvas) {
   }
 }
 
+function activateFullscreen() {
+  let canvas = document.getElementById('canvas-scene');
+
+  if(canvas.webkitRequestFullScreen) {
+    canvas.webkitRequestFullScreen();
+   } else {
+    canvas.mozRequestFullScreen();
+  }
+}
+
 function runProgram() {
+  let begin = Date.now();
+
   resizeCanvas(gl.canvas);
 
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
@@ -68,17 +85,19 @@ function runProgram() {
     program.update();
     program.render();
 
-    requestAnimationFrame(runProgram);
+    let delay = FRAME_TIME - (Date.now() - begin);
+    setTimeout(runProgram, delay);
+    //requestAnimationFrame(runProgram);
   } else {
     // cleanup
   }
 }
 
 function resizeCanvas(canvas) {
-  var displayWidth, displayHeight;
+  let displayWidth, displayHeight;
 
   if (RENDER_HD_DPI) {
-    var cssToRealPixels = window.devicePixelRatio || 1;
+    let cssToRealPixels = window.devicePixelRatio || 1;
 
     displayWidth  = Math.floor(canvas.clientWidth  * cssToRealPixels);
     displayHeight = Math.floor(canvas.clientHeight * cssToRealPixels);

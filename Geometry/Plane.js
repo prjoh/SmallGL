@@ -7,21 +7,21 @@ class Plane extends Geometry {
     super(gl_program);
     this.indexed = true;
 
-    //var triangles = (2*width)*(2*height);
-    var y = center[1];
-    var vertices = [];
+    //let triangles = (2*width)*(2*height);
+    let y = center[1];
+    let vertices = [];
 
-    for (var z = 0; z <= height; z++) {
-      for (var x = 0; x <= width; x++) {
+    for (let z = 0; z <= height; z++) {
+      for (let x = 0; x <= width; x++) {
         vertices.push(x, y, z);
       }
     }
 
-    var indices = [];
+    let indices = [];
 
-    for (var j = 0; j < height; j++) {
-      for (var i = 0; i < width; i++) {
-        var row = j * (width+1);
+    for (let j = 0; j < height; j++) {
+      for (let i = 0; i < width; i++) {
+        let row = j * (width+1);
         indices.push(i+row, i+(width+1)+row, i+(width+2)+row);
         indices.push(i+row, i+(width+2)+row, i+1+row);
       }
@@ -37,7 +37,7 @@ class Plane extends Geometry {
 
     // Buffer vertices
     if (vertices !== undefined && vertices != null) {
-      var attribLoc = gl.getAttribLocation(this.shaderProgram.gl_program, ATTR_POSITION_NAME);
+      let attribLoc = gl.getAttribLocation(this.shaderProgram.gl_program, ATTR_POSITION_NAME);
       
       if (attribLoc != -1) {
         this.bufferAttrib(
@@ -54,7 +54,7 @@ class Plane extends Geometry {
       throw Error("Position data could not be buffered!");
     }
 
-    // var nBuffer = gl.createBuffer();
+    // let nBuffer = gl.createBuffer();
 
     // // Buffer normals
     // if (normals !== undefined && normals != null) {

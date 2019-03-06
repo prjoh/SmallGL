@@ -1,13 +1,13 @@
 import {gl} from "../main.js";
 
-var mouseInput = {
+let mouseInput = {
   xPos: null,
   yPos: null,
   lastX: null,
   lastY: null
 };
 
-var keyboardInput = {
+let keyboardInput = {
   w: false,
   a: false,
   s: false,
@@ -27,7 +27,7 @@ function initEventHandlers() {
   document.addEventListener('keydown', onKeydownHandler, true);
   document.addEventListener('keyup', onKeyupHandler, true);
 
-  var pointerLockSupport = 'pointerLockElement' in document ||
+  let pointerLockSupport = 'pointerLockElement' in document ||
                            'mozPointerLockElement' in document ||
                            'webkitPointerLockElement' in document;
 
@@ -80,7 +80,7 @@ function mouseMoveHandler(evt) {
 }
 
 function onKeydownHandler(evt) {
-  var key = evt.key || evt.keyCode;
+  let key = evt.key || evt.keyCode;
 
   if (key === 'Escape' || key === 'Esc' || key === 27) {
     removeInteractionHandlers();
@@ -104,7 +104,7 @@ function onKeydownHandler(evt) {
 }
 
 function onKeyupHandler(evt) {
-  var key = evt.key || evt.keyCode;
+  let key = evt.key || evt.keyCode;
 
   if (key === 'KeyW' || key === 'w' || key === 87) {
     keyboardInput["w"] = false;

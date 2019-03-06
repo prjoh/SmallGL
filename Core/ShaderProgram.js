@@ -6,10 +6,10 @@ class ShaderProgram {
   }
 
   createShaderProgram(shaderName, vshSrc, fshSrc) {
-    var shaderProgram = null;
+    let shaderProgram = null;
 
-    var gl_vsh = gl.createShader(gl.VERTEX_SHADER);
-    var gl_fsh = gl.createShader(gl.FRAGMENT_SHADER);
+    let gl_vsh = gl.createShader(gl.VERTEX_SHADER);
+    let gl_fsh = gl.createShader(gl.FRAGMENT_SHADER);
 
     gl.shaderSource(gl_vsh, vshSrc);
     gl.shaderSource(gl_fsh, fshSrc);

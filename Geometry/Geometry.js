@@ -19,7 +19,7 @@ class Geometry {
 
   bindTextures() {
     if (this.gl_textures.length) {
-      for (var i = 0; i < this.gl_textures.length; i++) {
+      for (let i = 0; i < this.gl_textures.length; i++) {
         gl.activeTexture(gl.TEXTURE0 + i);
         gl.bindTexture(gl.TEXTURE_2D, this.gl_textures[i]);
       }
@@ -28,7 +28,7 @@ class Geometry {
 
   unbindTextures() {
     if (this.gl_textures.length) {
-      for (var i = 0; i < this.gl_textures.length; i++) {
+      for (let i = 0; i < this.gl_textures.length; i++) {
         gl.activeTexture(gl.TEXTURE0 + i);
         gl.bindTexture(gl.TEXTURE_2D, null);
       }
@@ -36,7 +36,7 @@ class Geometry {
   }
 
   bufferAttrib(attribLoc, bufferType, data, drawMode, elemNum, elemType, normalized) {
-    var buffer = gl.createBuffer();
+    let buffer = gl.createBuffer();
 
     gl.bindVertexArray(this.gl_vao);
     gl.bindBuffer(bufferType, buffer);
@@ -55,7 +55,7 @@ class Geometry {
   }
 
   bufferIndices(bufferType, indices, drawMode) {
-    var buffer = gl.createBuffer();
+    let buffer = gl.createBuffer();
 
     gl.bindVertexArray(this.gl_vao);
     gl.bindBuffer(bufferType, buffer);
@@ -67,7 +67,7 @@ class Geometry {
   }
 
   createTexture(textureData, flipY, unit) {
-    var texture = gl.createTexture();
+    let texture = gl.createTexture();
 
     if (flipY) {
       gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);

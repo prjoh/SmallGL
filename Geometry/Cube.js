@@ -11,7 +11,7 @@ class Cube extends Geometry {
     if (textureData) {
       this.createVAO(vertices, normals, indices, uvCoord, true);
 
-      for (var i = 0; i < textureNames.length; i++) {
+      for (let i = 0; i < textureNames.length; i++) {
         this.createTexture(textureData[textureNames[i]], false, i);
       }
     } else {
@@ -24,7 +24,7 @@ class Cube extends Geometry {
 
     // Buffer vertices
     if (vertices !== undefined && vertices != null) {
-      var attribLoc = gl.getAttribLocation(this.shaderProgram.gl_program, ATTR_POSITION_NAME);
+      let attribLoc = gl.getAttribLocation(this.shaderProgram.gl_program, ATTR_POSITION_NAME);
       
       if (attribLoc != -1) {
         this.bufferAttrib(
@@ -43,7 +43,7 @@ class Cube extends Geometry {
 
     // Buffer normals
     if (normals !== undefined && normals != null) {
-      var attribLoc = gl.getAttribLocation(this.shaderProgram.gl_program, ATTR_NORMAL_NAME);
+      let attribLoc = gl.getAttribLocation(this.shaderProgram.gl_program, ATTR_NORMAL_NAME);
       
       if (attribLoc != -1) {
         this.bufferAttrib(
@@ -63,7 +63,7 @@ class Cube extends Geometry {
     if (setTexture) {
       // Buffer uv
       if (texCoords !== undefined && texCoords != null) {
-        var attribLoc = gl.getAttribLocation(this.shaderProgram.gl_program, ATTR_UV_NAME);
+        let attribLoc = gl.getAttribLocation(this.shaderProgram.gl_program, ATTR_UV_NAME);
         
         if (attribLoc != -1) {
           this.bufferAttrib(

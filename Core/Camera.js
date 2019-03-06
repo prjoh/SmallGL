@@ -27,7 +27,7 @@ class Camera {
   // }
 
   getViewProjectionMatrix() {
-    var viewProjection = new Float32Array(16);
+    let viewProjection = new Float32Array(16);
 
     mat4.mul(viewProjection, this.projectionMat, this.viewMat);
 
@@ -35,7 +35,7 @@ class Camera {
   }
 
   getViewDirection() {
-    var viewDir = vec3.create();
+    let viewDir = vec3.create();
 
     vec3.sub(viewDir, this.viewAt, this.position);
     vec3.normalize(viewDir, viewDir);
@@ -44,7 +44,7 @@ class Camera {
   }
 
   update() {
-    var aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+    let aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
 
     mat4.lookAt(this.viewMat, this.position, this.viewAt, this.up);
     mat4.perspective(this.projectionMat, this.fov, aspect, this.near, this.far);
@@ -52,8 +52,8 @@ class Camera {
 
   //updateRotation(x, lastX, y, lastY) {
   updateRotation(x, y) {
-    var xOffset = MOUSE_SENSITIVITY * x;
-    var yOffset = MOUSE_SENSITIVITY * -y;
+    let xOffset = MOUSE_SENSITIVITY * x;
+    let yOffset = MOUSE_SENSITIVITY * -y;
 
     this.yaw = this.yaw + xOffset;
     this.pitch = this.pitch + yOffset;
@@ -65,31 +65,31 @@ class Camera {
       this.pitch = -89.0;
     }
 
-    var pitchRad = Utils.toRadians(this.pitch);
-    var yawRad = Utils.toRadians(this.yaw);
-    var x = Math.cos(pitchRad) * Math.cos(yawRad);
-    var y = Math.sin(pitchRad);
-    var z = Math.cos(pitchRad) * Math.sin(yawRad);
-    var viewDir = [x, y, z];
+    let pitchRad = Utils.toRadians(this.pitch);
+    let yawRad = Utils.toRadians(this.yaw);
+    let newX = Math.cos(pitchRad) * Math.cos(yawRad);
+    let newY = Math.sin(pitchRad);
+    let newZ = Math.cos(pitchRad) * Math.sin(yawRad);
+    let viewDir = [newX, newY, newZ];
     
     vec3.add(this.viewAt, this.position, viewDir);
   }
 
   updatePosition(dir, speed) {
     if (dir == "forward") {
-      var viewDir = this.getViewDirection();
+      let viewDir = this.getViewDirection();
       vec3.scaleAndAdd(this.position, this.position, viewDir, speed);
       vec3.scaleAndAdd(this.viewAt, this.viewAt, viewDir, speed);
     }
     if (dir == "backward") {
-      var viewDir = this.getViewDirection();
+      let viewDir = this.getViewDirection();
       vec3.scaleAndAdd(this.position, this.position, viewDir, -speed);
       vec3.scaleAndAdd(this.viewAt, this.viewAt, viewDir, -speed);
 
     }
     if (dir == "left") {
-      var viewDir = this.getViewDirection();
-      var right = vec3.create();
+      let viewDir = this.getViewDirection();
+      let right = vec3.create();
 
       vec3.cross(right, viewDir, this.up);
       vec3.normalize(right, right);
@@ -98,8 +98,8 @@ class Camera {
       vec3.scaleAndAdd(this.viewAt, this.viewAt, right, -speed);
     }
     if (dir == "right") {
-      var viewDir = this.getViewDirection();
-      var right = vec3.create();
+      let viewDir = this.getViewDirection();
+      let right = vec3.create();
 
       vec3.cross(right, viewDir, this.up);
       vec3.normalize(right, right);

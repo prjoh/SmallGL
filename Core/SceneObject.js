@@ -28,9 +28,9 @@ class SceneObject {
   }
 
   draw() {
-    var geometry = this.geometry;
-    var shaderProgram = geometry.shaderProgram;
-    var count = this.geometry.count;
+    let geometry = this.geometry;
+    let shaderProgram = geometry.shaderProgram;
+    let count = this.geometry.count;
 
     shaderProgram.set();
     geometry.setVAO();
@@ -49,7 +49,7 @@ class SceneObject {
 
   setParent(parent) {
     if (this.parentObject) {
-      var index = this.parentObject.children.indexOf(this);
+      let index = this.parentObject.children.indexOf(this);
 
       if (index >= 0) {
         this.parentObject.children.splice(index, 1);
@@ -69,7 +69,7 @@ class SceneObject {
       mat4.copy(this.worldMat, this.transform.getModelMatrix());
     }
 
-    var worldMat = this.worldMat;
+    let worldMat = this.worldMat;
 
     this.children.forEach(function(child) {
       child.updateWorldMatrix(worldMat);
