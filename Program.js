@@ -1,11 +1,11 @@
 import {gl} from "./main.js";
-import EventHandler from "./core/EventHandler.js";
-import Utils from "./core/Utils.js";
-import Camera from "./core/Camera.js";
-import ResourceLoader from "./core/ResourceLoader.js";
-import ShaderProgram from "./core/ShaderProgram.js";
-import SceneObject from "./core/SceneObject.js";
-import {ExternalGeometry, Triangle, Cube, Line, Plane} from "./geometry/Geometries.js";
+import EventHandler from "./Core/EventHandler.js";
+import Utils from "./Core/Utils.js";
+import Camera from "./Core/Camera.js";
+import ResourceLoader from "./Core/ResourceLoader.js";
+import ShaderProgram from "./Core/ShaderProgram.js";
+import SceneObject from "./Core/SceneObject.js";
+import {ExternalGeometry, Triangle, Cube, Line, Plane} from "./Geometry/Geometries.js";
 
 /* Attribute names in shader */
 const ATTR_POSITION_NAME = "a_position";
