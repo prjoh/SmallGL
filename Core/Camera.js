@@ -1,10 +1,9 @@
 import {gl} from "../main.js";
-import {MOUSE_SENSITIVITY} from "../Program.js"
 import Transform from "./Transform.js";
 import Utils from "./Utils.js";
 
 class Camera {
-  constructor(fov, aspect, near, far, position, viewAt, up) {
+  constructor(fov, aspect, near, far, position, viewAt, up, controllable, sensitivity) {
     this.fov = fov;
     this.near = near;
     this.far = far;
@@ -16,6 +15,11 @@ class Camera {
     this.projectionMat = new Float32Array(16); // Perspective projection matrix
     this.viewMat = new Float32Array(16);       // View Matrix
     //this.transform = new Transform();          // Camera Model Matrix
+    this.sensitivity = 1.0;
+
+    if (controllable) {
+      this.sensitivity = sensitivity;
+    }
 
     mat4.lookAt(this.viewMat, this.position, this.viewAt, this.up);
     mat4.perspective(this.projectionMat, fov, aspect, near, far);
