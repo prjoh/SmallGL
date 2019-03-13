@@ -2,9 +2,7 @@ import {gl} from "../main.js";
 
 let mouseInput = {
   xPos: null,
-  yPos: null,
-  lastX: null,
-  lastY: null
+  yPos: null
 };
 
 let keyboardInput = {
@@ -15,9 +13,6 @@ let keyboardInput = {
 };
 
 function initEventHandling() {
-  mouseInput["lastX"] = gl.canvas.clientWidth / 2;
-  mouseInput["lastY"] = gl.canvas.clientHeight / 2;
-
   gl.canvas.addEventListener('click', initEventHandlers);
 }
 
@@ -73,8 +68,6 @@ function removeInteractionHandlers() {
 }
 
 function mouseMoveHandler(evt) {
-  //mouseInput["xPos"] = evt.clientX - gl.canvas.getBoundingClientRect().left;
-  //mouseInput["yPos"] = evt.clientY - gl.canvas.getBoundingClientRect().top;
   mouseInput["xPos"] = evt.movementX;
   mouseInput["yPos"] = evt.movementY;
 }
@@ -139,22 +132,6 @@ function setMouseY(val) {
   mouseInput["yPos"] = val;
 }
 
-function getLastX() {
-  return mouseInput["lastX"];
-}
-
-function getLastY() {
-  return mouseInput["lastY"];
-}
-
-function setLastX(val) {
-  mouseInput["lastX"] = val;
-}
-
-function setLastY(val) {
-  mouseInput["lastY"] = val;
-}
-
 function getKeyW() {
   return keyboardInput["w"];
 }
@@ -177,10 +154,6 @@ export default {
   getMouseY,
   setMouseX,
   setMouseY,
-  getLastX,
-  getLastY,
-  setLastX,
-  setLastY,
   getKeyW,
   getKeyA,
   getKeyS,

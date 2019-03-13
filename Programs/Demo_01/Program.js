@@ -1,7 +1,7 @@
 import {gl} from "../../main.js";
 import EventHandler from "../../Core/EventHandler.js";
 import Utils from "../../Core/Utils.js";
-import Camera from "../../Core/Camera.js";
+import PerspectiveCamera from "../../Core/PerspectiveCamera.js";
 import ResourceLoader from "../../Core/ResourceLoader.js";
 import ShaderProgram from "../../Core/ShaderProgram.js";
 import SceneObject from "../../Core/SceneObject.js";
@@ -18,19 +18,12 @@ const UP = [0.0, 1.0, 0.0];
 const CAMERA_SPEED = 0.05;
 const MOUSE_SENSITIVITY = 0.1;
 
-// MOVE TO PROGRAM DATA
-let objectColors = [
-  [Math.random(), Math.random(), Math.random(), 1.0],
-  [Math.random(), Math.random(), Math.random(), 1.0],
-  [Math.random(), Math.random(), Math.random(), 1.0],
-  [Math.random(), Math.random(), Math.random(), 1.0],
-  [1.0, 1.0, 1.0, 1.0],
-  [Math.random(), Math.random(), Math.random(), 1.0],
-  [0, 255, 0, 1.0],
-  [0, 255, 0, 1.0],
-  [0, 255, 0, 1.0],
-  [0.45, 0.45, 0.45, 1.0]
-];
+/* Object data */
+let axisColor = [0, 255, 0, 1.0];
+let lightColor = [1.0, 1.0, 1.0, 1.0];
+let planeColor = [0.45, 0.45, 0.45, 1.0];
+let triangleColor  = [Math.random(), Math.random(), Math.random(), 1.0];
+let triangle2Color = [Math.random(), Math.random(), Math.random(), 1.0];
 
 let angle = 0;
 let lightMov = -25;
@@ -38,7 +31,7 @@ let lightMov = -25;
 
 class Program {
   constructor() {
-    this.camera = new Camera(
+    this.camera = new PerspectiveCamera(
       Utils.toRadians(FOV),
       gl.canvas.clientWidth / gl.canvas.clientHeight,
       NEAR,
@@ -290,8 +283,6 @@ class Program {
   }
 
   handleEvents() {
-    //let lastX = EventHandler.getLastX();
-    //let lastY = EventHandler.getLastY();
     let mouseX = EventHandler.getMouseX();
     let mouseY = EventHandler.getMouseY();
 
@@ -301,12 +292,9 @@ class Program {
       // let z = this.camera.position[2] - 5;    
       // let viewAt = [x, y, z];
 
-      //EventHandler.setLastX(mouseX);
-      //EventHandler.setLastY(mouseY);
       EventHandler.setMouseX(null);
       EventHandler.setMouseY(null);
 
-      //this.camera.updateRotation(mouseX, lastX, mouseY, lastY);
       this.camera.updateRotation(mouseX, mouseY);
     }
 
@@ -349,8 +337,29 @@ class Program {
       shaderProgram.setMat4fv("u_viewMat", this.camera.viewMat);
 
       shaderProgram.setVec3f("u_material.ambient", [1.0, 0.5, 0.31]);
+      shaderProgram.setFloat("u_material.shininess", 32.0);
+      shaderProgram.setVec3f("u_light.position", [3.5, 1.0, 11.0 * Math.sin(lightMov)]);
+      shaderProgram.setVec3f("u_light.ambient", [0.2, 0.2, 0.2]);
+      shaderProgram.setVec3f("u_light.diffuse", [0.5, 0.5, 0.5]);
+      shaderProgram.setVec3f("u_light.specular", [1.0, 1.0, 1.0]);
+      shaderProgram.setVec3f("u_eyePosition", this.camera.position);
+
+      if (object.identifier.endsWith("Axis") == true) {
+        shaderProgram.setVec4f("u_color", axisColor);        
+      }
+      if (object.identifier == "plane") {
+        shaderProgram.setVec4f("u_color", planeColor);
+      }  
+      if (object.identifier == "light") {
+        shaderProgram.setVec4f("u_color", lightColor);
+      }      
+      if (object.identifier == "triangle_01") {
+        shaderProgram.setVec3f("u_material.diffuse", [1.0, 0.5, 0.31]);
+        shaderProgram.setVec4f("u_color", triangleColor);
+      }
       if (object.identifier == "triangle_02") {
         shaderProgram.setVec3f("u_material.diffuse", [1.0, 0.5, 0.31]);
+        shaderProgram.setVec4f("u_color", triangle2Color);
       }
       if (object.identifier == "suzanne"
           || object.identifier == "container") {
@@ -362,13 +371,6 @@ class Program {
       if (object.identifier == "container") {
         shaderProgram.setInt("u_material.specular", 1);        
       }
-      shaderProgram.setFloat("u_material.shininess", 32.0);
-      shaderProgram.setVec3f("u_light.position", [3.5, 1.0, 11.0 * Math.sin(lightMov)]);
-      shaderProgram.setVec3f("u_light.ambient", [0.2, 0.2, 0.2]);
-      shaderProgram.setVec3f("u_light.diffuse", [0.5, 0.5, 0.5]);
-      shaderProgram.setVec3f("u_light.specular", [1.0, 1.0, 1.0]);
-      shaderProgram.setVec4f("u_color", objectColors[i]);
-      shaderProgram.setVec3f("u_eyePosition", this.camera.position);
 
       object.draw();
     }
