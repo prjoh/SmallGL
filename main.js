@@ -1,4 +1,4 @@
-import Program from "./Program.js";
+import Program from "./Programs/Demo_01/Program.js";
 
 const DEFAULT_WEBGL_2 = true;
 const RENDER_HD_DPI = true;
@@ -43,7 +43,7 @@ function getWebGLContext() {
   	}
 
   	if (!gl) {
-      console.log('WebGL2 not supported, falling back on WebGl.');
+      console.log('WebGL2 not supported, falling back on WebGL.');
 
       gl = canvas.getContext('webgl');
 
@@ -115,4 +115,8 @@ function resizeCanvas(canvas) {
 
 (document.body.onload=initWebGL())
 
-export {gl as gl};
+
+export {
+  gl,
+  webglVersion
+};
