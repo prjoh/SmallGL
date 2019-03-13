@@ -1,5 +1,10 @@
 import {gl} from "../main.js";
 
+/* Attributes defined in shader */
+const ATTR_POSITION_NAME = "a_position";
+const ATTR_NORMAL_NAME = "a_normal";
+const ATTR_UV_NAME = "a_texCoord";
+
 class Geometry {
   constructor(shaderProgram) {
     this.shaderProgram = shaderProgram;
@@ -92,4 +97,9 @@ class Geometry {
   }
 }
 
-export default Geometry;
+export {
+  Geometry,
+  ATTR_POSITION_NAME,
+  ATTR_NORMAL_NAME,
+  ATTR_UV_NAME
+};

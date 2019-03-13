@@ -1,6 +1,5 @@
 import {gl} from "../main.js";
-import {ATTR_POSITION_NAME, ATTR_NORMAL_NAME, ATTR_UV_NAME} from "../Program.js"
-import Geometry from "./Geometry.js";
+import {Geometry, ATTR_POSITION_NAME, ATTR_NORMAL_NAME, ATTR_UV_NAME} from "./Geometry.js";
 
 class Cube extends Geometry {
   constructor(gl_program, vertices, normals, indices, uvCoord, textureData, textureNames) {
