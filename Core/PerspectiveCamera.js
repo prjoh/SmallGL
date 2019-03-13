@@ -2,7 +2,7 @@ import {gl} from "../main.js";
 import Transform from "./Transform.js";
 import Utils from "./Utils.js";
 
-class Camera {
+class PerspectiveCamera {
   constructor(fov, aspect, near, far, position, viewAt, up, controllable, sensitivity) {
     this.fov = fov;
     this.near = near;
@@ -14,7 +14,6 @@ class Camera {
     this.yaw = -90.0;
     this.projectionMat = new Float32Array(16); // Perspective projection matrix
     this.viewMat = new Float32Array(16);       // View Matrix
-    //this.transform = new Transform();          // Camera Model Matrix
     this.sensitivity = 1.0;
 
     if (controllable) {
@@ -24,11 +23,6 @@ class Camera {
     mat4.lookAt(this.viewMat, this.position, this.viewAt, this.up);
     mat4.perspective(this.projectionMat, fov, aspect, near, far);
   }
-
-  // getViewMatrix() {
-  //   mat4.lookAt(this.viewMat, this.position, this.viewAt, this.up);
-  //   return this.viewMat;
-  // }
 
   getViewProjectionMatrix() {
     let viewProjection = new Float32Array(16);
@@ -54,10 +48,9 @@ class Camera {
     mat4.perspective(this.projectionMat, this.fov, aspect, this.near, this.far);
   }
 
-  //updateRotation(x, lastX, y, lastY) {
   updateRotation(x, y) {
-    let xOffset = MOUSE_SENSITIVITY * x;
-    let yOffset = MOUSE_SENSITIVITY * -y;
+    let xOffset = this.sensitivity * x;
+    let yOffset = this.sensitivity * -y;
 
     this.yaw = this.yaw + xOffset;
     this.pitch = this.pitch + yOffset;
@@ -114,4 +107,4 @@ class Camera {
   }
 }
 
-export default Camera;
+export default PerspectiveCamera;
