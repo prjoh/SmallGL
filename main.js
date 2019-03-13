@@ -43,13 +43,15 @@ function getWebGLContext() {
   	}
 
   	if (!gl) {
-      console.log('WebGL2 not supported, falling back on WebGL.');
+      /* console.log('WebGL2 not supported, falling back on WebGL.');
 
       gl = canvas.getContext('webgl');
 
       if (gl) {
       	webglVersion = 'WebGL';
-      }
+      }*/
+      console.log('WebGL2 not supported. Program will probably crash.');
+      alert('Browser does not support WebGL 2.0.\nSupported browsers are: Firefox, Chrome');
   	}
   } else {
     gl = canvas.getContext('webgl');
