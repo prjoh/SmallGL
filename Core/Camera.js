@@ -1,25 +1,36 @@
 import {gl} from "../main.js";
-import Camera from "./Camera.js"
 import Transform from "./Transform.js";
 import Utils from "./Utils.js";
 
-class PerspectiveCamera extends Camera {
-  constructor(fov, aspect, near, far, position, viewAt, up, controllable, sensitivity) {
-    super();
-    this.fov = fov;
-    this.near = near;
-    this.far = far;
-    this.position = position;
-    this.viewAt = viewAt;
-    this.up = up;
-    this.sensitivity = 1.0;
+class Camera {
+  constructor() {
+    this.fov = null;
+    this.near = null;
+    this.far = null;
+    this.position = null;
+    this.viewAt = null;
+    this.up = null;
+    this.pitch = 0.0;
+    this.yaw = -90.0;
+    this.projectionMat = new Float32Array(16); // Perspective projection matrix
+    this.viewMat = new Float32Array(16);       // View Matrix
+  }
 
-    if (controllable) {
-      this.sensitivity = sensitivity;
-    }
+  getViewProjectionMatrix() {
+    let viewProjection = new Float32Array(16);
 
-    mat4.lookAt(this.viewMat, this.position, this.viewAt, this.up);
-    mat4.perspective(this.projectionMat, fov, aspect, near, far);
+    mat4.mul(viewProjection, this.projectionMat, this.viewMat);
+
+    return viewProjection;
+  }
+
+  getViewDirection() {
+    let viewDir = vec3.create();
+
+    vec3.sub(viewDir, this.viewAt, this.position);
+    vec3.normalize(viewDir, viewDir);
+
+    return viewDir;
   }
 
   update() {
@@ -63,6 +74,7 @@ class PerspectiveCamera extends Camera {
       let viewDir = this.getViewDirection();
       vec3.scaleAndAdd(this.position, this.position, viewDir, -speed);
       vec3.scaleAndAdd(this.viewAt, this.viewAt, viewDir, -speed);
+
     }
     if (dir == "left") {
       let viewDir = this.getViewDirection();
@@ -87,4 +99,4 @@ class PerspectiveCamera extends Camera {
   }
 }
 
-export default PerspectiveCamera;
+export default Camera;

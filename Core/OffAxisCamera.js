@@ -1,104 +1,75 @@
 import {gl} from "../main.js";
-import {MOUSE_SENSITIVITY} from "../Program.js"
+import Camera from "./Camera.js"
 import Transform from "./Transform.js";
 import Utils from "./Utils.js";
 
-class OffAxisCamera {
-  //constructor(fov, aspect, near, far, position, viewAt, up) {
-  constructor(left, right, bottom, top, near, far, position, viewAt, up) {
-    let nearClipDistanceOffset = -0.01;
-    let pa = [left, bottom, 0.0];
-    let pb = [right, bottom, 0.0];
-    let pc = [left, top, 0.0];
+function getViewMatrix(viewMat, rightVec, upVec, screenNormal, position) {
+  viewMat[0] = rightVec[0];
+  viewMat[1] = rightVec[1];
+  viewMat[2] = rightVec[2];
+  viewMat[3] = 0.0;
+  viewMat[4] = upVec[0];
+  viewMat[5] = upVec[1];
+  viewMat[6] = upVec[2];
+  viewMat[7] = 0.0;
+  viewMat[8] = screenNormal[0];
+  viewMat[9] = screenNormal[1];
+  viewMat[10] = screenNormal[2];
+  viewMat[11] = 0.0;
+  viewMat[12] = -position[0];
+  viewMat[14] = -position[1];
+  viewMat[14] = -position[2];
+  viewMat[15] = 1.0;
+}
+
+class OffAxisCamera extends Camera {
+  constructor(left, right, bottom, top, near, far, position, viewAt) {
+    //let nearClipDistanceOffset = -0.01;
+    
+    let pa = [left, bottom, 0.0];   // position bottom left
+    let pb = [right, bottom, 0.0];  // position bottom right
+    let pc = [left, top, 0.0];      // position top left
+    
     let rightVec = vec3.create();
     vec3.sub(rightVec, pb, pa);
     vec3.normalize(rightVec, rightVec);
+
     let upVec = vec3.create();
     vec3.sub(upVec, pc, pa);
     vec3.normalize(upVec, upVec);
+
     let screenNormal = vec3.create();
     vec3.cross(screenNormal, rightVec, upVec);
     vec3.normalize(screenNormal, screenNormal);
-    let eyePosition = position;
-    let va = vec3.create();
-    vec3.sub(va, pa, eyePosition);
-    let vb = vec3.create();
-    vec3.sub(vb, pb, eyePosition);
-    let vc = vec3.create();
-    vec3.sub(vc, pc, eyePosition);
-    let d = vec3.dot(screenNormal, eyePosition);
-    let n = near;
-    let l = vec3.dot(rightVec, va)*n/d;
-    let r = vec3.dot(rightVec, vb)*n/d;
-    let b = vec3.dot(upVec, va)*n/d;
-    let t = vec3.dot(upVec, vc)*n/d;
-    let f = far;
+    
+    console.log("Screen normal: " + screenNormal);
 
-    this.position = eyePosition;
-    this.viewAt = [0.0, 0.0, 0.0];
+    let va = vec3.create();     // vector bottom left
+    vec3.sub(va, pa, position);
+    
+    let vb = vec3.create();     // vector bottom right
+    vec3.sub(vb, pb, position);
+    
+    let vc = vec3.create();     // vector top left
+    vec3.sub(vc, pc, position);
+    
+    let d = vec3.dot(screenNormal, position);  // THIS SHOULD BE NEGATIVE??? distance from the eye to the plane of the screen
+    let n = near;                              // distance from eye to near clip plane
+    let l = vec3.dot(rightVec, va)*n/d;        // distance from eye to left screen edge
+    let r = vec3.dot(rightVec, vb)*n/d;        // distance from eye to right screen edge
+    let b = vec3.dot(upVec, va)*n/d;           // distance from eye to bottom screen edge
+    let t = vec3.dot(upVec, vc)*n/d;           // distance from eye to top screen edge
+    let f = far;                               // distance from eye to far clip plane
+
+    this.position = position;
+    this.viewAt = viewAt;
     this.up = upVec;
-    // this.device = null;
-    // this.eye = null;
-    // this.left = position[0] + left;
-    // this.right = position[0] + right;
-    // this.bottom = position[1] + bottom;
-    // this.top = position[1] + top;
-    // this.near = near; //distance
-    // this.far = 10.0;
 
-    // this.fov = fov;
-    // this.near = near;
-    // this.far = far;
-    // this.position = position;
-    // this.viewAt = viewAt;
-    // this.up = up;
-    // this.pitch = 0.0;
-    // this.yaw = -90.0;
-    this.projectionMat = new Float32Array(16); // Perspective projection matrix
-    this.viewMat = new Float32Array(16);       // View Matrix
-    //this.transform = new Transform();          // Camera Model Matrix
+    this.viewMat = new Float32Array(16);        // View Matrix
+    this.projectionMat = new Float32Array(16);  // Off axis projection
 
-    this.viewMat[0] = rightVec[0];
-    this.viewMat[1] = rightVec[1];
-    this.viewMat[2] = rightVec[2];
-    this.viewMat[3] = 0.0;
-    this.viewMat[4] = upVec[0];
-    this.viewMat[5] = upVec[1];
-    this.viewMat[6] = upVec[2];
-    this.viewMat[7] = 0.0;
-    this.viewMat[8] = screenNormal[0];
-    this.viewMat[9] = screenNormal[1];
-    this.viewMat[10] = screenNormal[2];
-    this.viewMat[11] = 0.0;
-    this.viewMat[12] = -eyePosition[0];
-    this.viewMat[14] = -eyePosition[1];
-    this.viewMat[14] = -eyePosition[2];
-    this.viewMat[15] = 1.0;
-    //mat4.lookAt(this.viewMat, this.position, -eyePosition, this.up);
-    //mat4.perspective(this.projectionMat, fov, aspect, near, far);
+    getViewMatrix(this.viewMat, rightVec, upVec, screenNormal, position);
     mat4.frustum(this.projectionMat, l, r, b, t, n, f);
-  }
-
-  // getViewMatrix() {
-  //   mat4.lookAt(this.viewMat, this.position, this.viewAt, this.up);
-  //   return this.viewMat;
-  // }
-
-  getViewProjectionMatrix() {
-    var viewProjection = new Float32Array(16);
-
-    mat4.mul(viewProjection, this.projectionMat, this.viewMat);
-
-    return viewProjection;
-  }
-
-  getViewDirection() {
-    var viewDir = vec3.create();
-
-    vec3.sub(viewDir, this.viewAt, this.position);
-    vec3.normalize(viewDir, viewDir);
-
-    return viewDir;
   }
 
   update(pos) {
@@ -179,4 +150,4 @@ class OffAxisCamera {
   }
 }
 
-export default Camera;
+export default OffAxisCamera;
