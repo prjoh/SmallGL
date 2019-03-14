@@ -1,15 +1,18 @@
-import Program from "./Programs/Demo_01/Program.js";
+import Program1 from "./Programs/Demo_01/Program.js";
+import Program2 from "./Programs/Demo_02/Program.js";
+import Program3 from "./Programs/Perlin_Noise/Program.js";
 
 const DEFAULT_WEBGL_2 = true;
 const RENDER_HD_DPI = true;
 const FPS = 60;
 const FRAME_TIME = 1000/FPS;
 
+let select = document.getElementById('program-select');
 let gl = null;
 let webglVersion = null;
 let program = null;
 
-function initWebGL() {
+document.body.onload = function initWebGL() {
   getWebGLContext();
   console.log('Initialized ' + webglVersion);
 
@@ -17,15 +20,54 @@ function initWebGL() {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   gl.enable(gl.DEPTH_TEST);
   gl.enable(gl.CULL_FACE);
-  gl.frontFace(gl.CCW);
+  gl.frontFace(gl.CCW);   // We are in right-handed coordinate system
   gl.cullFace(gl.BACK);
 
   let fullscreenButton = document.getElementById('fullscreen-button');
   fullscreenButton.addEventListener("click", activateFullscreen);
 
-  program = new Program();
+  let programName = select.options[select.selectedIndex].innerHTML;
+
+  program = getProgram(programName);
 
   program.init(runProgram);
+}
+
+select.onchange = function changeProgram() {
+  if(program != null) {
+    program.kill();
+
+    //gl.canvas.width = 1;
+    //gl.canvas.height = 1;
+  }
+
+  let programName = select.options[select.selectedIndex].innerHTML;
+
+  console.log("Changing to program " + programName);
+
+  program = getProgram(programName);
+
+  program.init(runProgram);
+}
+
+function getProgram(programName) {
+  let program = null;
+
+  switch(programName) {
+    case 'Demo_01':
+      program = new Program1();
+      break;
+    case 'Demo_02':
+      program = new Program2();
+      break;
+    case 'Perlin_Noise':
+      program = new Program3();
+      break;
+    default:
+      program = new Program1();
+  }
+
+  return program;
 }
 
 function getWebGLContext() {
@@ -114,8 +156,6 @@ function resizeCanvas(canvas) {
     canvas.height = displayHeight;
   }
 }
-
-(document.body.onload=initWebGL())
 
 
 export {
