@@ -12,19 +12,8 @@ class SceneObject {
     this.worldMat = mat4.create();
   }
 
-  destroy() {
-    // Unbind gl resources
-    gl.bindTexture(gl.TEXTURE_2D, null);
-    gl.bindBuffer(gl.ARRAY_BUFFER, null);
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-    
-    // Delete gl resources
-    // gl.deleteTexture(that.gl_texture);
-    // gl.deleteBuffer(that.gl_vertBuffer);
-    // gl.deleteBuffer(that.gl_normBuffer);
-    // gl.deleteBuffer(that.gl_uvBuffer);
-    // gl.deleteBuffer(that.gl_ibo);
-    // gl.deleteVertexArray(that.gl_vao);
+  cleanUp() {
+    this.geometry.cleanUp();
   }
 
   draw() {

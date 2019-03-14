@@ -14,6 +14,22 @@ class Geometry {
     this.indexed = null;
   }
 
+  cleanUp() {
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    gl.bindBuffer(gl.ARRAY_BUFFER, null);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+
+    if (this.gl_textures.length) {
+      for (let i = 0; i < this.gl_textures.length; i++) {
+        gl.deleteTexture(this.gl_textures[i]);
+      }
+    }
+
+    gl.deleteVertexArray(this.gl_vao);
+
+    this.shaderProgram.deleteShaderProgram();
+  }
+
   setVAO() {
     gl.bindVertexArray(this.gl_vao);
   }
