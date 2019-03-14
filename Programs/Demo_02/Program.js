@@ -106,10 +106,8 @@ class Program {
     let suzanne = new SceneObject(
       "suzanne",
       new ExternalGeometry(
-        shaderPrograms["phong-tex"],
-        modelObjects["suzanne"],
-        textureObjects,
-        ["suzanne"]
+        shaderPrograms["phong"],
+        modelObjects["dragon"]
       ), 
       gl.TRIANGLES
     );
@@ -248,8 +246,9 @@ class Program {
       lightMov = lightMov + 0.001;
 
       if (object.identifier == "suzanne") {
-        object.transform.rotate([-120, 0, 0]);
-        object.transform.translate([1, 1, 5]);
+        object.transform.rotate([0, -0.5*angle, 0]);
+        object.transform.translate([1, 0, 5]);
+        object.transform.scale([0.3, 0.3, 0.3]);
       }
       if (object.identifier == "cube") {
         object.transform.rotate([-100, 0, 0]);
@@ -366,11 +365,12 @@ class Program {
         shaderProgram.setVec3f("u_material.diffuse", [1.0, 0.5, 0.31]);
         shaderProgram.setVec4f("u_color", triangle2Color);
       }
-      if (object.identifier == "suzanne"
-          || object.identifier == "container") {
+      if (object.identifier == "container") {
         shaderProgram.setInt("u_material.diffuse", 0);
       }
       if (object.identifier == "suzanne"/* || object.identifier == "container"*/) {
+        shaderProgram.setVec3f("u_material.ambient", [0.2, 0.4, 0.3]);
+        shaderProgram.setVec3f("u_material.diffuse", [0.3, 1.0, 0.4]);
         shaderProgram.setVec3f("u_material.specular", [1.0, 0.5, 0.5]);
       }
       if (object.identifier == "container") {
