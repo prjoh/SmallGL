@@ -18,7 +18,16 @@
   </head>
   <body>
     <canvas id="canvas-scene">Your browser does not support HTML5</canvas>
-    <button id="fullscreen-button">Fullscreen</button>
+    <div id="program-control">
+      <select id="program-select" name="form-select" size="6" onchange="changeProgram()">
+        <option class= "program-option" value="demo01" selected="selected">Demo_01</option>
+        <option class= "program-option" value="demo02">Demo_02</option>
+        <option class= "program-option" value="demo03">Perlin_Noise</option>
+      </select>
+    </div>
+    <div id="fullscreen-control">
+      <button id="fullscreen-button">Fullscreen</button>
+    </div>
     <script type="module" src="./main.js"></script>
   </body>
 </html>
