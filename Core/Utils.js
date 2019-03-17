@@ -6,6 +6,14 @@ function toDegrees(radians) {
   return radians * 180 / Math.PI;
 }
 
+function getRndInteger(min, max) {
+  return Math.floor(Math.random() * (max - min) ) + min;
+}
+
+function getRndFloat(min, max) {
+  return (Math.random() * (max - min)) + min;
+}
+
 function computeNormals(vertices, indices) {
   let normals = [];
 
@@ -61,5 +69,7 @@ function computeNormals(vertices, indices) {
 export default {
   toRadians,
   toDegrees,
+  getRndInteger,
+  getRndFloat,
   computeNormals
 };
