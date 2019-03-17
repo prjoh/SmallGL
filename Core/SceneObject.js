@@ -2,10 +2,9 @@ import {gl} from "../main.js";
 import Transform from "./Transform.js"
 
 class SceneObject {
-  constructor(id, geometry, drawMode) {
+  constructor(id, geometry) {
     this.identifier = id;
     this.geometry = geometry;
-    this.drawMode = drawMode;
     this.parentObject = null;
     this.children = [];
     this.transform = new Transform(); // Model Matrix
@@ -26,9 +25,9 @@ class SceneObject {
     geometry.bindTextures();
 
     if (this.geometry.indexed) {
-      gl.drawElements(this.drawMode, count, gl.UNSIGNED_SHORT, 0);
+      gl.drawElements(geometry.drawMode, count, gl.UNSIGNED_SHORT, 0);
     } else {
-      gl.drawArrays(this.drawMode, 0, count);
+      gl.drawArrays(geometry.drawMode, 0, count);
     }
 
     geometry.unbindTextures();
