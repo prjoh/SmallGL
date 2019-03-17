@@ -5,25 +5,28 @@ import PerspectiveCamera from "../../Core/PerspectiveCamera.js";
 import ResourceLoader from "../../Core/ResourceLoader.js";
 import ShaderProgram from "../../Core/ShaderProgram.js";
 import SceneObject from "../../Core/SceneObject.js";
-import {ExternalGeometry, Triangle, Cube, Line, Plane} from "../../Geometry/Geometries.js";
+import {WireframePlane, BufferGeometry} from "../../Geometry/Geometries.js";
 //import {triangleVertices, cubeVertices, cubeIndices, cubeUV} from "./ProgramData.js";
 
 /* Camera settings */
 const FOV = 75;
 const NEAR = 0.1;
 const FAR = 1000;
-const EYE = [2.0, 2.0, 15.0];
-const CENTER = [3.0, 0.0, 0.0];
+const EYE = [0.0, 10.0, 15.0];
+const CENTER = [0.0, 0.0, 0.0];
 const UP = [0.0, 1.0, 0.0];
 const CAMERA_SPEED = 0.05;
 const MOUSE_SENSITIVITY = 0.1;
 
+let planeWidth = 120;
+let planeHeight = 60;
+let yValues = [];
 
 class Program {
   constructor() {
     this.camera = new PerspectiveCamera(
       Utils.toRadians(FOV),
-      gl.canvas.clientWidth / gl.canvas.clientHeight,
+      gl.canvas.clientplaneWidth / gl.canvas.clientHeight,
       NEAR,
       FAR,
       EYE,
@@ -31,6 +34,7 @@ class Program {
       UP,
       true,
       MOUSE_SENSITIVITY);
+    this.shaderPrograms = {};
     this.scene = [];
     this.run = false;
   }
@@ -85,31 +89,73 @@ class Program {
   }
 
   setupScene(shaderObjects, modelObjects, textureObjects, runProgramCallback) {
-    let shaderPrograms = {};
-
     Object.keys(shaderObjects).forEach(key => {
       let shaderProgram = new ShaderProgram(key, shaderObjects[key].vshSrc, shaderObjects[key].fshSrc);
 
-      shaderPrograms[key] = shaderProgram;
+      this.shaderPrograms[key] = shaderProgram;
     });
+
+    // Initialize height values for plane
+    for (let z = 0; z <= planeHeight; z++) {
+      yValues.push([]);
+      for (let x = 0; x <= planeWidth; x++) {
+        yValues[z].push(Utils.getRndFloat(0.0, 1.0));
+      }
+    }
+
+    // Create wireframe plane
+    let vertices = [];
+
+    for (let z = 0; z <= planeHeight; z++) {
+      for (let x = 0; x <= planeWidth; x++) {
+        vertices.push(x, yValues[z][x], z);
+      }
+    }
+
+    let indices = [];
+
+    for (let j = 0; j < planeHeight; j++) {  // rows
+      for (let i = 0; i < planeWidth; i++) { // columns
+        let rowIndex = j * (planeWidth+1);   // index of first point in a row: multiply row with number of points per row
+        let colIndex = i + rowIndex;         // column point index
+
+        if (j % 2 == 0) {
+          indices.push(colIndex, colIndex+(planeWidth+1), colIndex+(planeWidth+2), colIndex);
+
+          if (i+1 == planeWidth) { // Add downline at the end of row
+            indices.push(colIndex+1, colIndex+(planeWidth+2));
+          }
+        } else {
+          let bwColIndexDown = 2*planeWidth + rowIndex + 1;
+          let bwColIndexUp = planeWidth + rowIndex - 1;
+          indices.push(bwColIndexDown - i, bwColIndexUp - i);
+        }
+      }
+
+      if (j+1 == planeHeight && j % 2 != 0) { // Finish bottom of wireframe
+        for (let i = 0; i < planeWidth+1; i++) {
+          let lastRowIndex = (j+1) * (planeWidth+1);
+          indices.push(lastRowIndex + i);
+        }
+      }
+    }
 
     let plane = new SceneObject(
       "plane",
-      new Plane(
-        shaderPrograms["basic"],
-        [0, 0, 0],  // center of plane
-        60,         // width: 1 unit on xAxis (world coordinates)
-        30,         // height: 1 unit on yAxis (world coordinates)
-        25          // resolution: number of triangles in w*h
-      ),
-      gl.TRIANGLES
+      new BufferGeometry(
+        this.shaderPrograms["basic"],
+        gl.LINE_STRIP,
+        vertices,
+        indices,
+        Utils.computeNormals(vertices, indices)
+      )
     );
 
-    // Add objects to scene
     this.scene.push(plane);
 
+
     // Init Event Handling
-    //EventHandler.initEventHandling();
+    EventHandler.initEventHandling();
 
     // Run render loop
     this.run = true;
@@ -130,7 +176,7 @@ class Program {
     let mouseY = EventHandler.getMouseY();
 
     if (mouseX != null && mouseY != null) {
-      // let x = 4 * (mouseX / gl.canvas.width * 2 - 1);
+      // let x = 4 * (mouseX / gl.canvas.planeWidth * 2 - 1);
       // let y = 4 * (mouseY / gl.canvas.height * -2 + 1);
       // let z = this.camera.position[2] - 5;    
       // let viewAt = [x, y, z];
@@ -156,15 +202,74 @@ class Program {
   }
 
   update() {
-    //this.handleEvents();
-    this.camera.update();
+    this.handleEvents();
+    this.camera.update();    
+
+    // update yValues
+    for (let z = 0; z <= planeHeight; z++) {
+      for (let x = 0; x <= planeWidth; x++) {
+        yValues[z][x] = Utils.getRndFloat(0.0, 1.0);
+      }
+    }
+
+    this.scene.pop();
+
+    // Create updated wireframe plane
+    let vertices = [];
+
+    for (let z = 0; z <= planeHeight; z++) {
+      for (let x = 0; x <= planeWidth; x++) {
+        vertices.push(x, yValues[z][x], z);
+      }
+    }
+
+    let indices = [];
+
+    for (let j = 0; j < planeHeight; j++) {  // rows
+      for (let i = 0; i < planeWidth; i++) { // columns
+        let rowIndex = j * (planeWidth+1);   // index of first point in a row: multiply row with number of points per row
+        let colIndex = i + rowIndex;         // column point index
+
+        if (j % 2 == 0) {
+          indices.push(colIndex, colIndex+(planeWidth+1), colIndex+(planeWidth+2), colIndex);
+
+          if (i+1 == planeWidth) { // Add downline at the end of row
+            indices.push(colIndex+1, colIndex+(planeWidth+2));
+          }
+        } else {
+          let bwColIndexDown = 2*planeWidth + rowIndex + 1;
+          let bwColIndexUp = planeWidth + rowIndex - 1;
+          indices.push(bwColIndexDown - i, bwColIndexUp - i);
+        }
+      }
+
+      if (j+1 == planeHeight && j % 2 != 0) { // Finish bottom of wireframe
+        for (let i = 0; i < planeWidth+1; i++) {
+          let lastRowIndex = (j+1) * (planeWidth+1);
+          indices.push(lastRowIndex + i);
+        }
+      }
+    }
+
+    let plane = new SceneObject(
+      "plane",
+      new BufferGeometry(
+        this.shaderPrograms["basic"],
+        gl.LINE_STRIP,
+        vertices,
+        indices,
+        Utils.computeNormals(vertices, indices)
+      )
+    );
+
+    this.scene.push(plane);
 
     // Perform transforms
     for (let i = 0; i < this.scene.length; i++) {
       let object = this.scene[i];
 
       if (object.identifier == "plane") {
-        object.transform.translate([-30, 0, -15]);
+        object.transform.translate([-60, 0, -45]);
       }
     }
 
@@ -197,7 +302,8 @@ class Program {
 
       shaderProgram.setMat4fv("u_viewProjMat", this.camera.getViewProjectionMatrix());
       shaderProgram.setMat4fv("u_modelMat", /*modelMat*/ worldMatrix);
-      shaderProgram.setVec4f("u_color", [0.45, 0.45, 0.45, 1.0]);
+      shaderProgram.setVec4f("u_color", [0.2, 1.0, 0.2, 1.0]);
+      shaderProgram.setVec4f("u_translate", [1.0, yValues, 1.0, 1.0]);
 
       object.draw();
     }

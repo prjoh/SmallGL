@@ -5,7 +5,7 @@ import PerspectiveCamera from "../../Core/PerspectiveCamera.js";
 import ResourceLoader from "../../Core/ResourceLoader.js";
 import ShaderProgram from "../../Core/ShaderProgram.js";
 import SceneObject from "../../Core/SceneObject.js";
-import {ExternalGeometry, Triangle, Cube, Line, Plane} from "../../Geometry/Geometries.js";
+import {ExternalGeometry, Triangle, Cube, Line, Plane, BufferGeometry} from "../../Geometry/Geometries.js";
 import {triangleVertices, cubeVertices, cubeIndices, cubeUV} from "./ProgramData.js";
 
 /* Camera settings */
@@ -108,61 +108,57 @@ class Program {
       new ExternalGeometry(
         shaderPrograms["phong"],
         modelObjects["dragon"]
-      ), 
-      gl.TRIANGLES
+      )
     );
     let triangle = new SceneObject(
       "triangle_01",
       new Triangle(
         shaderPrograms["basic"],
         triangleVertices
-      ),
-      gl.TRIANGLES
+      )
     );
     let triangle2 = new SceneObject(
       "triangle_02",
       new Triangle(
         shaderPrograms["basic"],
         triangleVertices
-      ),
-      gl.TRIANGLES
+      )
     );
     let cube = new SceneObject(
       "cube",
-      new Cube(
+      new BufferGeometry(
         shaderPrograms["phong-tex"],
+        gl.TRIANGLES,
         cubeVertices,
-        Utils.computeNormals(cubeVertices, cubeIndices),
         cubeIndices,
+        Utils.computeNormals(cubeVertices, cubeIndices),
         cubeUV,
         textureObjects,
         ["crate"]
-      ),
-      gl.TRIANGLES
+      )
     );
     let light = new SceneObject(
       "light",
-      new Cube(
+      new BufferGeometry(
         shaderPrograms["basic"],
+        gl.TRIANGLES,
         cubeVertices,
-        Utils.computeNormals(cubeVertices, cubeIndices),
         cubeIndices,
-        cubeUV
-      ),
-      gl.TRIANGLES
+        Utils.computeNormals(cubeVertices, cubeIndices)
+      )
     );
     let container = new SceneObject(
       "container",
-      new Cube(
+      new BufferGeometry(
         shaderPrograms["phong-tex-spec"],
+        gl.TRIANGLES,
         cubeVertices,
-        Utils.computeNormals(cubeVertices, cubeIndices),
         cubeIndices,
+        Utils.computeNormals(cubeVertices, cubeIndices),
         cubeUV,
         textureObjects,
         ["container", "container_specular"]
-      ),
-      gl.TRIANGLES
+      )
     );
     let xAxis = new SceneObject(
       "xAxis",
@@ -170,8 +166,7 @@ class Program {
         shaderPrograms["basic"],
         [0, 0, 0],
         [25, 0, 0]
-      ),
-      gl.LINES
+      )
     );
     let yAxis = new SceneObject(
       "yAxis",
@@ -179,8 +174,7 @@ class Program {
         shaderPrograms["basic"],
         [0, 0, 0],
         [0, 25, 0]
-      ),
-      gl.LINES
+      )
     );
     let zAxis = new SceneObject(
       "zAxis",
@@ -188,19 +182,17 @@ class Program {
         shaderPrograms["basic"],
         [0, 0, 0],
         [0, 0, 25]
-      ),
-      gl.LINES
+      )
     );
     let plane = new SceneObject(
       "plane",
       new Plane(
-        shaderPrograms["basic"],
+        shaderPrograms["phong"],
         [0, 0, 0],  // center of plane
         60,         // width: 1 unit on xAxis (world coordinates)
         30,         // height: 1 unit on yAxis (world coordinates)
-        25          // resolution: number of triangles in w*h
-      ),
-      gl.TRIANGLES
+        //25          // resolution: number of triangles in w*h
+      )
     );
 
     triangle2.setParent(triangle);
@@ -340,8 +332,8 @@ class Program {
       shaderProgram.setMat3fv("u_normalMat", normalMatrix);
       shaderProgram.setMat4fv("u_viewMat", this.camera.viewMat);
 
-      shaderProgram.setVec3f("u_material.ambient", [1.0, 0.5, 0.31]);
-      shaderProgram.setFloat("u_material.shininess", 32.0);
+      shaderProgram.setVec3f("u_material.ambient", [0.3, 0.2, 0.31]);
+      shaderProgram.setFloat("u_material.shininess", 128.0);
       shaderProgram.setVec3f("u_light.position", [3.5, 1.0, 11.0 * Math.sin(lightMov)]);
       shaderProgram.setVec3f("u_light.ambient", [0.2, 0.2, 0.2]);
       shaderProgram.setVec3f("u_light.diffuse", [0.5, 0.5, 0.5]);
@@ -352,8 +344,13 @@ class Program {
         shaderProgram.setVec4f("u_color", axisColor);        
       }
       if (object.identifier == "plane") {
-        shaderProgram.setVec4f("u_color", planeColor);
-      }  
+        //shaderProgram.setVec4f("u_color", planeColor);
+        shaderProgram.setVec3f("u_material.diffuse", [0.6, 0.5, 0.4]);
+        shaderProgram.setVec3f("u_material.specular", [1.0, 0.8, 0.8]);
+      }
+      if (object.identifier == "cube") {
+        shaderProgram.setVec3f("u_material.specular", [1.0, 0.8, 0.8]);
+      }
       if (object.identifier == "light") {
         shaderProgram.setVec4f("u_color", lightColor);
       }      
