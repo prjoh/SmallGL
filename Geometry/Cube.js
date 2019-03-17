@@ -2,10 +2,11 @@ import {gl} from "../main.js";
 import {Geometry, ATTR_POSITION_NAME, ATTR_NORMAL_NAME, ATTR_UV_NAME} from "./Geometry.js";
 
 class Cube extends Geometry {
-  constructor(gl_program, vertices, normals, indices, uvCoord, textureData, textureNames) {
+  constructor(gl_program, vertices, indices, normals, uvCoord, textureData, textureNames) {
     super(gl_program);
-    this.count = indices.length;
+    this.drawMode = gl.TRIANGLES;
     this.indexed = true;
+    this.count = indices.length;
 
     if (textureData) {
       this.createVAO(vertices, normals, indices, uvCoord, true);
@@ -14,7 +15,7 @@ class Cube extends Geometry {
         this.createTexture(textureData[textureNames[i]], false, i);
       }
     } else {
-      this.createVAO(vertices, normals, indices, uvCoord, false);      
+      this.createVAO(vertices, normals, indices, null, false);
     }
   }
 
@@ -91,33 +92,6 @@ class Cube extends Geometry {
       throw Error("Index data could not be buffered!");
     }
   }
-
-  // createTexture(textureData) {
-  //   this.gl_texture = gl.createTexture();
-
-  //   //gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-  //   //gl.activeTexture(gl.TEXTURE0);
-  //   gl.bindTexture(gl.TEXTURE_2D, this.gl_texture);
-  //   gl.texImage2D(
-  //     gl.TEXTURE_2D,     // target
-  //     0,                      // level of detail
-  //     gl.RGBA,           // internal format
-  //     // 1024,                        // width
-  //     // 1024,                        // height
-  //     // 0,                      // border
-  //     gl.RGBA,           // format
-  //     gl.UNSIGNED_BYTE,  // type
-  //     textureData             // source
-  //   );
-  //   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-  //   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-  //   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-  //   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-  //   gl.bindTexture(gl.TEXTURE_2D, null);
-  //   //FROM WEBGL2FUND
-  //   // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-  //   // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-  // }
 }
 
 export default Cube;

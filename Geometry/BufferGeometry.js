@@ -1,29 +1,28 @@
 import {gl} from "../main.js";
 import {Geometry, ATTR_POSITION_NAME, ATTR_NORMAL_NAME, ATTR_UV_NAME} from "./Geometry.js";
 
-class ExternalGeometry extends Geometry {
-  constructor(gl_program, meshData, textureData, textureNames) {
+class BufferGeometry extends Geometry {
+  constructor(gl_program, drawMode, vertices, indices, normals, uvCoord, textureData, textureNames) {
     super(gl_program);
-    this.drawMode = gl.TRIANGLES
+    this.drawMode = drawMode;
     this.indexed = true;
+    this.count = indices.length;
 
     if (textureData) {
-      this.createVAO(meshData, true);
+      this.createVAO(vertices, normals, indices, uvCoord, true);
 
       for (let i = 0; i < textureNames.length; i++) {
-        this.createTexture(textureData[textureNames[i]], true, i);
+        this.createTexture(textureData[textureNames[i]], false, i);
       }
     } else {
-      this.createVAO(meshData, false);      
+      this.createVAO(vertices, normals, indices, null, false);      
     }
   }
 
-  createVAO(meshData, setTexture) {
+  createVAO(vertices, normals, indices, texCoords, setTexture) {
     this.gl_vao =  gl.createVertexArray();
- 
-    // Buffer vertices
-    let vertices = meshData.json.meshes[0].vertices;
 
+    // Buffer vertices
     if (vertices !== undefined && vertices != null) {
       let attribLoc = gl.getAttribLocation(this.shaderProgram.gl_program, ATTR_POSITION_NAME);
       
@@ -43,8 +42,6 @@ class ExternalGeometry extends Geometry {
     }
 
     // Buffer normals
-    let normals = meshData.json.meshes[0].normals;
-
     if (normals !== undefined && normals != null) {
       let attribLoc = gl.getAttribLocation(this.shaderProgram.gl_program, ATTR_NORMAL_NAME);
       
@@ -65,8 +62,6 @@ class ExternalGeometry extends Geometry {
 
     if (setTexture) {
       // Buffer uv
-      let texCoords = meshData.json.meshes[0].texturecoords[0];
-
       if (texCoords !== undefined && texCoords != null) {
         let attribLoc = gl.getAttribLocation(this.shaderProgram.gl_program, ATTR_UV_NAME);
         
@@ -87,8 +82,6 @@ class ExternalGeometry extends Geometry {
     }
 
     // Buffer indices
-    let indices = [].concat.apply([], meshData.json.meshes[0].faces);
-
     if (indices !== undefined && indices != null) {
       this.bufferIndices(
         gl.ELEMENT_ARRAY_BUFFER,
@@ -101,4 +94,4 @@ class ExternalGeometry extends Geometry {
   }
 }
 
-export default ExternalGeometry;
+export default BufferGeometry;

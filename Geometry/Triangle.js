@@ -4,8 +4,9 @@ import {Geometry, ATTR_POSITION_NAME, ATTR_NORMAL_NAME, ATTR_UV_NAME} from "./Ge
 class Triangle extends Geometry {
   constructor(gl_program, vertices) {
     super(gl_program);
-    this.count = 3;
+    this.drawMode = gl.TRIANGLES;
     this.indexed = false;
+    this.count = 3;
 
     this.createVAO(vertices);
   }

@@ -1,11 +1,10 @@
 import {gl} from "../main.js";
 import {Geometry, ATTR_POSITION_NAME, ATTR_NORMAL_NAME, ATTR_UV_NAME} from "./Geometry.js";
-import Utils from "../Core/Utils.js";
 
-class Plane extends Geometry {
+class WireframePlane extends Geometry {
   constructor(gl_program, center, width, height/*, resolution*/) {
     super(gl_program);
-    this.drawMode = gl.TRIANGLES;
+    this.drawMode = gl.LINE_STRIP;
     this.indexed = true;
 
     let y = center[1];
@@ -19,22 +18,38 @@ class Plane extends Geometry {
 
     let indices = [];
 
-    for (let j = 0; j < height; j++) {
-      for (let i = 0; i < width; i++) {
-        let row = j * (width+1);
-        indices.push(i+row, i+(width+1)+row, i+(width+2)+row);
-        indices.push(i+row, i+(width+2)+row, i+1+row);
+    for (let j = 0; j < height; j++) {  // rows
+      for (let i = 0; i < width; i++) { // columns
+        let rowIndex = j * (width+1);   // index of first point in a row: multiply row with number of points per row
+        let colIndex = i + rowIndex;         // column point index
+
+        if (j % 2 == 0) {
+          indices.push(colIndex, colIndex+(width+1), colIndex+(width+2), colIndex);
+
+          if (i+1 == width) { // Add downline at the end of row
+            indices.push(colIndex+1, colIndex+(width+2));
+          }
+        } else {
+          let bwColIndexDown = 2*width + rowIndex + 1;
+          let bwColIndexUp = width + rowIndex - 1;
+          indices.push(bwColIndexDown - i, bwColIndexUp - i);
+        }
+      }
+
+      if (j+1 == height && j % 2 != 0) { // Finish bottom of wireframe
+        for (let i = 0; i < width+1; i++) {
+          let lastRowIndex = (j+1) * (width+1);
+          indices.push(lastRowIndex + i);
+        }
       }
     }
 
-    let normals = Utils.computeNormals(vertices, indices);
-
     this.count = indices.length;
 
-    this.createVAO(vertices, normals, indices);
+    this.createVAO(vertices, indices);
   }
 
-  createVAO(vertices, normals, indices) {
+  createVAO(vertices, indices) {
     this.gl_vao =  gl.createVertexArray();
 
     // Buffer vertices
@@ -56,25 +71,6 @@ class Plane extends Geometry {
       throw Error("Position data could not be buffered!");
     }
 
-    // Buffer normals
-    if (normals !== undefined && normals != null) {
-      let attribLoc = gl.getAttribLocation(this.shaderProgram.gl_program, ATTR_NORMAL_NAME);
-
-      if (attribLoc != -1) {
-        this.bufferAttrib(
-          attribLoc,
-          gl.ARRAY_BUFFER,
-          normals,
-          gl.STATIC_DRAW,
-          3,
-          gl.FLOAT,
-          false
-        );
-      }
-    } else {
-      throw Error("Normals data could not be buffered!");
-    }
-
     // Buffer indices
     if (indices !== undefined && indices != null) {
       this.bufferIndices(
@@ -88,4 +84,4 @@ class Plane extends Geometry {
   }
 }
 
-export default Plane;
+export default WireframePlane;

@@ -4,8 +4,9 @@ import {Geometry, ATTR_POSITION_NAME} from "./Geometry.js";
 class Line extends Geometry {
   constructor(gl_program, p1, p2) {
     super(gl_program);
-    this.count = 2;
+    this.drawMode = gl.LINES;
     this.indexed = false;
+    this.count = 2;
 
     this.createVAO(p1.concat(p2));
   }
